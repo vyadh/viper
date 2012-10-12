@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/domain/domain.iml" filepath="$PROJECT_DIR$/domain/domain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/domain-log/domain-log.iml" filepath="$PROJECT_DIR$/domain-log/domain-log.iml" />
+      <module fileurl="file://$PROJECT_DIR$/domain-message/domain-message.iml" filepath="$PROJECT_DIR$/domain-message/domain-message.iml" />
+      <module fileurl="file://$PROJECT_DIR$/main/main.iml" filepath="$PROJECT_DIR$/main/main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/store/store.iml" filepath="$PROJECT_DIR$/store/store.iml" />
+      <module fileurl="file://$PROJECT_DIR$/store-log/store-log.iml" filepath="$PROJECT_DIR$/store-log/store-log.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ui/ui.iml" filepath="$PROJECT_DIR$/ui/ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ui-log/ui-log.iml" filepath="$PROJECT_DIR$/ui-log/ui-log.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ui-message/ui-message.iml" filepath="$PROJECT_DIR$/ui-message/ui-message.iml" />
+      <module fileurl="file://$PROJECT_DIR$/viper.iml" filepath="$PROJECT_DIR$/viper.iml" />
+    </modules>
+  </component>
+</project>
+

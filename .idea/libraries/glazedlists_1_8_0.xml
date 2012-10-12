@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="glazedlists-1.8.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/glazedlists-1.8.0_java15.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/glazedlists_1.8.0_java15-source.zip!/source" />
+    </SOURCES>
+  </library>
+</component>
