@@ -29,7 +29,8 @@ object Viper {
       new LogRecord("3", "xp03", new Date(), Info, "MRD", "MRD started successfully"),
       new LogRecord("4", "xp12", new Date(), Info, "Grid Node", "Grid Node started successfully"),
       new LogRecord("5", "xp01", new Date(), Error, "Trades Rec", "Stuff Portia"),
-      new LogRecord("6", "xp01", new Date(), Error, "Portia", "I'm dead")
+      new LogRecord("6", "xp01", new Date(), Error, "Portia", "I'm dead"),
+      new LogRecord("7", "xp08", new Date(), Info, "Portia", "Test commit to BB")
     )
   }
 
