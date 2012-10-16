@@ -10,12 +10,23 @@ import ca.odell.glazedlists.gui.{AbstractTableComparatorChooser, TableFormat}
 
 trait UIComponents {
 
-  class FilterableSortableTable[T](
-        filtered: FilterList[T],
-        sorted: SortedList[T],
-        format: TableFormat[T]) extends JTable(new EventTableModel[T](filtered, format)) {
+  class FilterableSortableTable[T] extends JTable {
+    var installed: Option[TableComparatorChooser[T]] = None
 
-    TableComparatorChooser.install(this, sorted, AbstractTableComparatorChooser.SINGLE_COLUMN)
+    def install(filtered: FilterList[T], sorted: SortedList[T], format: TableFormat[T]) {
+      uninstall()
+
+      setModel(new EventTableModel[T](filtered, format))
+
+      installed = Some(
+        TableComparatorChooser.install(this, sorted, AbstractTableComparatorChooser.SINGLE_COLUMN)
+      )
+    }
+
+    def uninstall() {
+      installed.foreach(_.dispose())
+      installed = None
+    }
   }
 
   class ScrollPane(c: JComponent) extends JScrollPane(c) {
@@ -75,6 +86,8 @@ trait UIComponents {
   }
 
   class SearchBox(onChange: String => Unit) extends JTextField {
+    var restoring = false
+
     val dimension = new Dimension(200, 20)
     //    setSize(dimension)
     setPreferredSize(dimension)
@@ -83,9 +96,19 @@ trait UIComponents {
 
     addCaretListener(new CaretListener {
       def caretUpdate(e: CaretEvent) {
-        onChange(getText)
+        if (!restoring) {
+          onChange(getText)
+        }
       }
     })
+
+    /** Restore search text, without triggering an update.
+      * Needs to be called on event thread. */
+    def restore(text: String) {
+      restoring = true
+      setText(text)
+      restoring = false
+    }
   }
 
 }

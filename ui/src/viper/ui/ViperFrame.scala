@@ -7,44 +7,59 @@ import viper.domain.{RecordPrototype, Record, Subscriber, Subscription}
 import matchers.TextMatcherEditor
 import java.util
 import collection.mutable
-import scala.actors.Actor._
 
-class ViperFrame(val name: String) extends JFrame(name) with UI {
+class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
   /** The currently active subscriptions, as shown in the left-side list. */
   val subscriberEventList = new BasicEventList[Subscriber]
   /** Objects related to a subscription, keyed by the subscriber object. */
   val viewObjectsBySubscriber = new mutable.HashMap[Subscriber, ViewObjects]
-  /** Object used to shut down actors. */
-  case object Exit
 
   val main = createMainComponents(subscriberEventList)
   layoutComponents()
 
 
   def close() {
-    filterActor ! Exit
+    closeFiltering()
   }
 
-  class MainComponents(
-    val subscriptionList: ListPanel[Subscriber],
-    val views: CardPanel,
-    val searchBox: SearchBox
+
+  // Useful classes
+
+  case class MainComponents(
+        subscriptionList: ListPanel[Subscriber],
+        searchBox: SearchBox,
+        table: FilterableSortableTable[Record],
+        preview: JTextArea
   )
 
-  def createMainComponents(subscriberEventList: EventList[Subscriber]): MainComponents = {
-    val subscriberList = new ListPanel[Subscriber](subscriberEventList, flipTo)
-    val views = new CardPanel
-    val searchBox = new SearchBox(expression => filterActor ! expression)
+  case class ViewObjects(
+        subscription: Subscription,
+        format: RecordTableFormat,
+        data: EventList[Record],
+        sorted: SortedList[Record],
+        filtered: FilterList[Record],
+        filterer: TextMatcherEditor[Record],
+        var filter: String
+  )
 
-    new MainComponents(subscriberList, views, searchBox)
+
+  // Component construction and Layout
+
+  def createMainComponents(subscriberEventList: EventList[Subscriber]): MainComponents = {
+    val subscriberList = new ListPanel[Subscriber](subscriberEventList, changeTo)
+    val searchBox = new SearchBox(filter)
+    val table = new FilterableSortableTable[Record]
+    val preview = new JTextArea
+
+    new MainComponents(subscriberList, searchBox, table, preview)
   }
 
   def layoutComponents() {
     val content = getContentPane
     content.add(createToolBar, BorderLayout.NORTH)
     content.add(new ScrollPane(main.subscriptionList), BorderLayout.WEST)
-    content.add(main.views, BorderLayout.CENTER)
+    content.add(new VerticalSplitPane(new ScrollPane(main.table), main.preview), BorderLayout.CENTER)
   }
 
   def createToolBar = new ToolBar() {
@@ -54,18 +69,33 @@ class ViperFrame(val name: String) extends JFrame(name) with UI {
   }
 
 
+  // Actions
+
+  def changeTo(subscriber: Subscriber) {
+    val view = viewObjectsBySubscriber(subscriber)
+    main.searchBox.restore(view.filter)
+    main.table.install(view.filtered, view.sorted, view.format)
+  }
+
+  def filter(expression: String) {
+    val filterer = activeView.filterer
+    def updateViewFilter() { activeView.filter = expression }
+    filter(expression, filterer, updateViewFilter)
+  }
+
+
+  // Add/remove subscription
+
   def addSubscription(subscription: Subscription) {
     val vos = viewObjects(subscription)
-    val v = view(vos)
-    main.views.add(subscription.ref, v)
     viewObjectsBySubscriber.put(subscription.subscriber, vos)
     subscriberEventList.add(subscription.subscriber)
   }
 
   def removeSubscription(subscriber: Subscriber) {
-    main.views.remove(subscriber.ref)
     viewObjectsBySubscriber.remove(subscriber)
     subscriberEventList.remove(subscriber)
+    // todo and if it is the currently viewed subscription?
   }
 
   def viewObjects(subscription: Subscription): ViewObjects = {
@@ -74,33 +104,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI {
     val data = subscribe(subscription)
     val sorted = sortedList(data)
     val (filterer, filtered) = filteredList(subscription.prototype, sorted)
-    val table = new FilterableSortableTable(filtered, sorted, format)
 
-    val preview = new JTextArea()
-
-    ViewObjects(subscription, data, table, preview, filterer)
-  }
-
-  case class ViewObjects(
-        subscription: Subscription,
-        data: EventList[Record],
-        table: JTable,
-        preview: JTextArea,
-        filterer: TextMatcherEditor[Record]
-  )
-
-  def view(viewObjs: ViewObjects): JComponent = {
-    new VerticalSplitPane(new ScrollPane(viewObjs.table), viewObjs.preview)
-  }
-
-  def flipTo(subscriber: Subscriber) {
-    selectFilter(subscriber)
-
-    main.views.show(subscriber.ref)
-  }
-
-  def selectFilter(subscriber: Subscriber) {
-    main.searchBox.setText("")
+    ViewObjects(subscription, format, data, sorted, filtered, filterer, "")
   }
 
   def subscribe(subscription: Subscription): EventList[Record] = {
@@ -116,7 +121,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI {
   def sortedList(eventList: EventList[Record]) = new SortedList[Record](eventList, null)
 
   def filteredList(prototype: RecordPrototype, eventList: SortedList[Record]):
-        (TextMatcherEditor[Record], FilterList[Record]) = {
+  (TextMatcherEditor[Record], FilterList[Record]) = {
 
     val filterator = new TextFilterator[Record] {
       def getFilterStrings(baseList: util.List[String], element: Record) {
@@ -131,33 +136,14 @@ class ViperFrame(val name: String) extends JFrame(name) with UI {
     (textMatcherEditor, filteredEventList)
   }
 
-  /** Actor helps avoid blocking UI thread when filtering large amount of data. */
-  val filterActor = actor {
-    loop {
-      react {
-        case expression: String => filter(expression)
-        case Exit => exit()
-      }
-    }
-  }
 
-  def filter(expression: String) {
-    val filterer = activeViewObjects.filterer
-
-    import TextMatcherEditor._
-    val filters = filterer.getMode match {
-      case CONTAINS => expression.split("[ \t]")
-      case m if Set(STARTS_WITH, REGULAR_EXPRESSION, EXACT).contains(m) => Array(expression)
-    }
-
-    filterer.setFilterText(filters) // todo need to restore when we revert to this view
-  }
+  // Util functions
 
   def activeSubscriber: Subscriber = {
     main.subscriptionList.getSelectedValue
   }
 
-  def activeViewObjects: ViewObjects = {
+  def activeView: ViewObjects = {
     val opt = viewObjectsBySubscriber.get(activeSubscriber)
     if (opt.isEmpty) {
       throw new IllegalStateException("No active view")
