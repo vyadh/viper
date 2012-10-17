@@ -23,7 +23,13 @@ object Viper {
 
   def fakeSubscriber = new Subscriber("Fake", "Fake Ref", "")
   def fake = new Subscription(fakeSubscriber, LogRecordPrototype) {
-    def testData = Array(
+    def deliver(to: (Seq[Record]) => Unit) {
+      to(testData)
+    }
+
+    def stop() {}
+
+    private lazy val testData = Array(
       new LogRecord("1", "xp05", new Date(), Warning, "CTS Rates", "No rates"),
       new LogRecord("2", "xp05", new Date(), Warning, "CTS Compliance", "Banks have crashed"),
       new LogRecord("3", "xp03", new Date(), Info, "MRD", "MRD started successfully"),
@@ -36,8 +42,13 @@ object Viper {
 
   def randomSubscriber = new Subscriber("Random", "Random Ref", "")
   def random = new Subscription(randomSubscriber, LogRecordPrototype) {
-    def testData = (1 to 100000).map(randomRecord).toArray
+    def deliver(to: (Seq[Record]) => Unit) {
+      to((1 to 100000).map(randomRecord))
+    }
+
+    def stop() {}
   }
+
   def randomRecord: (Int => Record) = i => {
     new LogRecord("" + i, "source " + i, new Date(), Warning, "app " + i, "" + i)
   }

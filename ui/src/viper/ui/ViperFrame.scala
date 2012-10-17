@@ -7,6 +7,7 @@ import viper.domain.{RecordPrototype, Record, Subscriber, Subscription}
 import matchers.TextMatcherEditor
 import java.util
 import collection.mutable
+import collection.JavaConversions.seqAsJavaList
 
 class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
@@ -21,6 +22,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
   def close() {
     closeFiltering()
+    removeSubscriptions()
   }
 
 
@@ -86,16 +88,23 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
   // Add/remove subscription
 
+  def removeSubscription(subscriber: Subscriber) {
+    val view = viewObjectsBySubscriber.remove(subscriber)
+    view.map(_.subscription).foreach(_.stop())
+
+    subscriberEventList.remove(subscriber)
+    // todo and if it is the currently viewed subscription?
+  }
+
+  def removeSubscriptions() {
+    val subscriptions = viewObjectsBySubscriber.values.map(_.subscription)
+    subscriptions.foreach(_.stop())
+  }
+
   def addSubscription(subscription: Subscription) {
     val vos = viewObjects(subscription)
     viewObjectsBySubscriber.put(subscription.subscriber, vos)
     subscriberEventList.add(subscription.subscriber)
-  }
-
-  def removeSubscription(subscriber: Subscriber) {
-    viewObjectsBySubscriber.remove(subscriber)
-    subscriberEventList.remove(subscriber)
-    // todo and if it is the currently viewed subscription?
   }
 
   def viewObjects(subscription: Subscription): ViewObjects = {
@@ -110,11 +119,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
   def subscribe(subscription: Subscription): EventList[Record] = {
     val result = new BasicEventList[Record]()
-
-    for (r <- subscription.testData) { // todo testdata
-      result.add(r)
-    }
-
+    // Subscribe to events, but simply adding them to the event list as they come in
+    subscription.deliver(result.addAll(_))
     result
   }
 

@@ -6,6 +6,16 @@ abstract case class Subscription(
 
   def ref = subscriber.ref
 
-  def testData: Array[Record]
+  /**
+   * Adds a new delivery point for messages.
+   * @param to where to deliver messages.
+   */
+  def deliver(to: Seq[Record] => Unit)
+
+  /**
+   * Close the subscription, so no more events are delivered.
+   * Duplicate calls have no effect.
+   */
+  def stop()
 
 }
