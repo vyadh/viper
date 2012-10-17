@@ -16,8 +16,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
   /** Objects related to a subscription, keyed by the subscriber object. */
   val viewObjectsBySubscriber = new mutable.HashMap[Subscriber, ViewObjects]
 
-  val main = createMainComponents(subscriberEventList)
-  layoutComponents()
+  val main = init()
 
 
   def close() {
@@ -48,9 +47,15 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
   // Component construction and Layout
 
+  def init(): MainComponents = {
+    val main = createMainComponents(subscriberEventList)
+    initLayout(main)
+    main
+  }
+
   def createMainComponents(subscriberEventList: EventList[Subscriber]): MainComponents = {
     val subscriberList = new ListPanel[Subscriber](subscriberEventList, changeTo)
-    val searchBox = new SearchBox(filter)
+    val searchBox = new SearchBox(filter) { setEnabled(false) }
     val table = new FilterableSortableTable[Record]
     val preview = new JTextArea
 
@@ -59,17 +64,29 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
     new MainComponents(subscriberList, searchBox, table, preview)
   }
 
-  def layoutComponents() {
+  def initLayout(components: MainComponents) {
     val content = getContentPane
-    content.add(createToolBar, BorderLayout.NORTH)
-    content.add(new ScrollPane(main.subscriptionList), BorderLayout.WEST)
-    content.add(new VerticalSplitPane(new ScrollPane(main.table), main.preview), BorderLayout.CENTER)
+
+    // Components
+    val toolBar = createToolBar(components.searchBox)
+    val subscriptionScroll = new ScrollPane(components.subscriptionList)
+    val tableWithPreview = new VerticalSplitPane(new ScrollPane(components.table), components.preview)
+    val main = new HorizontalSplitPane(subscriptionScroll, tableWithPreview)
+
+    // Borders
+    val border = 3
+    toolBar.setBorder(new EmptyBorder(border))
+    components.subscriptionList.setBorder(new EmptyBorder(border))
+
+    // Layout
+    content.add(toolBar, BorderLayout.NORTH)
+    content.add(main, BorderLayout.CENTER)
   }
 
-  def createToolBar = new ToolBar() {
+  def createToolBar(searchBox: SearchBox) = new ToolBar() {
     addFiller()
     add(new JLabel("Search "))
-    add(main.searchBox)
+    add(searchBox)
   }
 
 
@@ -79,6 +96,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
     val view = viewObjectsBySubscriber(subscriber)
     main.searchBox.restore(view.filter)
     main.table.install(view.filtered, view.sorted, view.format)
+    main.searchBox.setEnabled(true)
   }
 
   def filter(expression: String) {

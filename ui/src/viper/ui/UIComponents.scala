@@ -36,6 +36,7 @@ trait UIComponents {
 
   class ToolBar extends JToolBar {
     setFloatable(false)
+    setLayout(new BoxLayout(this, BoxLayout.X_AXIS)) // Fix for Nimbus bug 7085425
 
     def addFiller() {
       add(Box.createHorizontalGlue())
@@ -75,13 +76,23 @@ trait UIComponents {
   }
 
   case class VerticalSplitPane[T <: JComponent, B <: JComponent](top: T, bottom: B)
-        extends JSplitPane(JSplitPane.VERTICAL_SPLIT) {
+        extends JSplitPane(JSplitPane.VERTICAL_SPLIT) with SplitPane {
 
     setTopComponent(top)
     setBottomComponent(bottom)
+  }
+
+  case class HorizontalSplitPane[L <: JComponent, R <: JComponent](left: L, right: R)
+        extends JSplitPane(JSplitPane.HORIZONTAL_SPLIT) with SplitPane {
+
+    setLeftComponent(left)
+    setRightComponent(right)
+  }
+
+  trait SplitPane {
+    this: JSplitPane =>
 
     setOneTouchExpandable(true)
-    setResizeWeight(1.0)
     setContinuousLayout(true)
   }
 
@@ -96,7 +107,7 @@ trait UIComponents {
 
     addCaretListener(new CaretListener {
       def caretUpdate(e: CaretEvent) {
-        if (!restoring) {
+        if (isEnabled && !restoring) {
           onChange(getText)
         }
       }
@@ -110,5 +121,7 @@ trait UIComponents {
       restoring = false
     }
   }
+
+  class EmptyBorder(size: Int) extends javax.swing.border.EmptyBorder(size, size, size, size)
 
 }

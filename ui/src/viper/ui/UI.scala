@@ -3,6 +3,7 @@ package viper.ui
 import javax.swing._
 import java.awt.event.{WindowEvent, WindowAdapter}
 import java.util.prefs.Preferences
+import javax.swing.UIManager.LookAndFeelInfo
 
 trait UI extends UIComponents {
 
@@ -14,8 +15,25 @@ trait UI extends UIComponents {
   /** Application-specific cleanup. */
   def close(): Unit
 
+  private lazy val prefs = Preferences.userNodeForPackage(getClass)
+
+  initLookAndFeel()
   initFrame()
 
+
+  private def initLookAndFeel() {
+    try {
+      UIManager.getInstalledLookAndFeels().find(_.getName == "Nimbus").foreach { lf =>
+        UIManager.setLookAndFeel(lf.getClassName)
+      }
+    } catch {
+      // No big deal, I can't change the L&F. Maybe it's not available on this version of Java
+      case e: UnsupportedLookAndFeelException =>
+      case e: ClassNotFoundException =>
+      case e: InstantiationException =>
+      case e: IllegalAccessException =>
+    }
+  }
 
   private def initFrame() {
     setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)
@@ -54,7 +72,5 @@ trait UI extends UIComponents {
     prefs.putInt(name + ".frame.x", getLocation.x)
     prefs.putInt(name + ".frame.y", getLocation.y)
   }
-
-  lazy val prefs = Preferences.userNodeForPackage(getClass)
 
 }
