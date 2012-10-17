@@ -5,7 +5,7 @@
     <content url="file://$MODULE_DIR$" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="scala-library" level="project" />
+    <orderEntry type="library" exported="" name="scala-library" level="application" />
   </component>
 </module>
 

@@ -11,6 +11,7 @@
       <module fileurl="file://$PROJECT_DIR$/ui/ui.iml" filepath="$PROJECT_DIR$/ui/ui.iml" />
       <module fileurl="file://$PROJECT_DIR$/ui-log/ui-log.iml" filepath="$PROJECT_DIR$/ui-log/ui-log.iml" />
       <module fileurl="file://$PROJECT_DIR$/ui-message/ui-message.iml" filepath="$PROJECT_DIR$/ui-message/ui-message.iml" />
+      <module fileurl="file://$PROJECT_DIR$/util/util.iml" filepath="$PROJECT_DIR$/util/util.iml" />
       <module fileurl="file://$PROJECT_DIR$/viper.iml" filepath="$PROJECT_DIR$/viper.iml" />
     </modules>
   </component>
