@@ -54,6 +54,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
     val table = new FilterableSortableTable[Record]
     val preview = new JTextArea
 
+    subscriberList.setCellRenderer(new SubscriberCellRenderer)
+
     new MainComponents(subscriberList, searchBox, table, preview)
   }
 
