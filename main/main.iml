@@ -19,6 +19,8 @@
     <orderEntry type="module" module-name="ui-message" />
     <orderEntry type="module" module-name="domain-log" />
     <orderEntry type="module" module-name="domain-message" />
+    <orderEntry type="module" module-name="store-log" />
+    <orderEntry type="module" module-name="util" />
   </component>
 </module>
 

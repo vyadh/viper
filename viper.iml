@@ -6,6 +6,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="scala-library" level="application" />
+    <orderEntry type="module" module-name="domain" exported="" />
+    <orderEntry type="module" module-name="util" exported="" />
   </component>
 </module>
 

@@ -1,6 +1,6 @@
 package viper.domain.log
 
-import viper.domain.{Levelable, Record}
+import viper.domain.{Severity, Levelable, Record}
 import java.util.Date
 
 /**

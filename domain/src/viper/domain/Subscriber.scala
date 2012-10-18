@@ -6,4 +6,4 @@ package viper.domain
 case class Subscriber(
       name: String,
       ref: String,
-      query: String)
+      query: String = "")

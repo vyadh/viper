@@ -8,6 +8,7 @@ import matchers.TextMatcherEditor
 import java.util
 import collection.mutable
 import collection.JavaConversions.seqAsJavaList
+import viper.util.EQ
 
 class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
@@ -139,8 +140,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
   def subscribe(subscription: Subscription): EventList[Record] = {
     val result = new BasicEventList[Record]()
-    // Subscribe to events, but simply adding them to the event list as they come in
-    subscription.deliver(result.addAll(_))
+    // Subscribe to events by adding them to the event list as they come in
+    subscription.deliver(records => EQ.later { result.addAll(records) })
     result
   }
 
@@ -165,9 +166,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
   // Util functions
 
-  def activeSubscriber: Subscriber = {
-    main.subscriptionList.getSelectedValue
-  }
+  def activeSubscriber: Subscriber = main.subscriptionList.selected.get(0)
 
   def activeView: ViewObjects = {
     val opt = viewObjectsBySubscriber.get(activeSubscriber)

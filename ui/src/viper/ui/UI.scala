@@ -3,7 +3,7 @@ package viper.ui
 import javax.swing._
 import java.awt.event.{WindowEvent, WindowAdapter}
 import java.util.prefs.Preferences
-import javax.swing.UIManager.LookAndFeelInfo
+import viper.util.EQ
 
 trait UI extends UIComponents {
 
@@ -20,6 +20,10 @@ trait UI extends UIComponents {
   initLookAndFeel()
   initFrame()
 
+
+  def setVisible() {
+    EQ.later { setVisible(true) }
+  }
 
   private def initLookAndFeel() {
     try {
@@ -50,13 +54,13 @@ trait UI extends UIComponents {
     initPosition()
   }
 
-  def initSize() {
+  private def initSize() {
     val width = prefs.getInt(name + ".frame.width", 1000)
     val height = prefs.getInt(name + ".frame.height", 600)
     setSize(width, height)
   }
 
-  def initPosition() {
+  private def initPosition() {
     val x = prefs.getInt(name + ".frame.x", -1)
     val y = prefs.getInt(name + ".frame.y", -1)
     if (x == -1 || y == -1) {

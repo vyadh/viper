@@ -34,7 +34,7 @@ class PersistentFileReader(path: String) extends Reader {
     closeReader()
   }
 
-  def closeReader() {
+  private def closeReader() {
     if (reader != null) {
       reader.close()
     }

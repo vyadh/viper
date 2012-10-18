@@ -12,7 +12,9 @@ object LogRecordPrototype extends RecordPrototype {
     new RecordField("Body",        (r: Record) => convert(r).body)
   )
 
-  def convert(record: Record): LogRecord = {
+  def severity(r: Record) = convert(r).severity
+
+  private def convert(record: Record): LogRecord = {
     try {
       record.asInstanceOf[LogRecord]
     } catch {

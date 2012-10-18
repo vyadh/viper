@@ -4,7 +4,7 @@ import javax.swing._
 import event.{CaretEvent, CaretListener, ListSelectionEvent, ListSelectionListener}
 import java.awt.{Dimension, Component, CardLayout, Color}
 import ca.odell.glazedlists.{SortedList, FilterList, EventList}
-import ca.odell.glazedlists.swing.{TableComparatorChooser, EventTableModel, EventListModel}
+import ca.odell.glazedlists.swing.{EventSelectionModel, TableComparatorChooser, EventTableModel, EventListModel}
 import collection.mutable
 import ca.odell.glazedlists.gui.{AbstractTableComparatorChooser, TableFormat}
 
@@ -45,6 +45,12 @@ trait UIComponents {
 
   class ListPanel[T](eventList: EventList[T], onSelection: T => Unit)
         extends JList[T](new EventListModel[T](eventList).asInstanceOf[ListModel[T]]) {
+
+    private val selectionModel = new EventSelectionModel(eventList)
+    setSelectionModel(selectionModel)
+    val selected = selectionModel.getSelected
+
+    setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
 
     addListSelectionListener(new ListSelectionListener {
       def valueChanged(e: ListSelectionEvent) {

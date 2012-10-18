@@ -6,6 +6,10 @@ package viper.domain
  */
 trait RecordPrototype {
 
+  /** Fields that are expected to be shown as columns on the view table. */
   def fields: Array[RecordField]
+
+  /** Severity for a record. */
+  def severity(r: Record): Severity
 
 }
