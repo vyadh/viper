@@ -56,7 +56,11 @@ object Viper {
       new LogRecord("4", "xp12", new Date(), Info, "Grid Node", "Grid Node started successfully"),
       new LogRecord("5", "xp01", new Date(), Severe, "Trades Rec", "Stuff Portia"),
       new LogRecord("6", "xp01", new Date(), Severe, "Portia", "I'm dead"),
-      new LogRecord("7", "xp08", new Date(), Info, "Portia", "Test commit to BB")
+      new LogRecord("7", "xp08", new Date(), Info, "Portia", "Test commit to BB"),
+      new LogRecord("8", "xp08", new Date(), Config, "MRD", "Some param"),
+      new LogRecord("9", "xp08", new Date(), Fine, "Whoo", "One fine day..."),
+      new LogRecord("10", "xp08", new Date(), Finer, "Whooo", "One fine day..."),
+      new LogRecord("11", "xp08", new Date(), Finest, "Whooo", "One fine day...")
     )
   }
 
@@ -68,9 +72,10 @@ object Viper {
 
     def stop() {}
   }
-
+  val rand = new java.util.Random
   def randomRecord: (Int => Record) = i => {
-    new LogRecord("" + i, "source " + i, new Date(), Warning, "app " + i, "" + i)
+    val s = Severities.values(rand.nextInt(Severities.count))
+    new LogRecord("" + i, "source " + i, new Date(), s, "app " + i, "" + i)
   }
 
 }

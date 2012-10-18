@@ -27,6 +27,11 @@ trait UIComponents {
       installed.foreach(_.dispose())
       installed = None
     }
+
+    def hideColumn(index: Int) {
+      val cm = getColumnModel
+      cm.removeColumn(cm.getColumn(0))
+    }
   }
 
   class ScrollPane(c: JComponent) extends JScrollPane(c) {

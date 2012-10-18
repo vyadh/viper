@@ -11,8 +11,6 @@ object JULXMLLogRecordPrototype extends RecordPrototype {
     new RecordField("Message", convert(_).message)
   )
 
-  def severity(r: Record) = convert(r).severity
-
   private def convert(record: Record): JULXMLLogRecord = {
     try {
       record.asInstanceOf[JULXMLLogRecord]

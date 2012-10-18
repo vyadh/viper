@@ -1,14 +1,15 @@
 package viper.ui
 
 import javax.swing._
-import java.awt.BorderLayout
+import java.awt.{Color, Component, BorderLayout}
 import ca.odell.glazedlists._
+import table.TableCellRenderer
 import viper.domain.{RecordPrototype, Record, Subscriber, Subscription}
 import matchers.TextMatcherEditor
 import java.util
 import collection.mutable
 import collection.JavaConversions.seqAsJavaList
-import viper.util.EQ
+import viper.util.{Colours, EQ}
 
 class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
@@ -57,7 +58,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
   def createMainComponents(subscriberEventList: EventList[Subscriber]): MainComponents = {
     val subscriberList = new ListPanel[Subscriber](subscriberEventList, changeTo)
     val searchBox = new SearchBox(filter) { setEnabled(false) }
-    val table = new FilterableSortableTable[Record]
+    val table = new RecordTable
     val preview = new JTextArea
 
     subscriberList.setCellRenderer(new SubscriberCellRenderer)
@@ -76,7 +77,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
     // Borders
     val border = 3
-    toolBar.setBorder(new EmptyBorder(border))
+    toolBar.setBorder(BorderFactory.createCompoundBorder(toolBar.getBorder, new EmptyBorder(border)))
     components.subscriptionList.setBorder(new EmptyBorder(border))
 
     // Layout
@@ -98,6 +99,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
     main.searchBox.restore(view.filter)
     main.table.install(view.filtered, view.sorted, view.format)
     main.searchBox.setEnabled(true)
+    main.table.hideColumn(0) // First column is always record, so don't display it
   }
 
   def filter(expression: String) {
@@ -174,6 +176,23 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
       throw new IllegalStateException("No active view")
     }
     opt.get
+  }
+
+
+  // Record-specific components
+
+  class RecordTable extends FilterableSortableTable[Record] {
+    override def prepareRenderer(renderer: TableCellRenderer, row: Int, column: Int): Component = {
+      val c = super.prepareRenderer(renderer, row, column)
+      val r = getModel.getValueAt(row, 0).asInstanceOf[Record]
+
+      if (isRowSelected(row)) {
+        c.setForeground(Colours.blend(r.severity.colour, Color.white, 150))
+      } else {
+        c.setForeground(r.severity.colour)
+      }
+      c
+    }
   }
 
 }
