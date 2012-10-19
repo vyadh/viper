@@ -14,7 +14,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="viper" />
+    <orderEntry type="library" name="scala-library" level="application" />
   </component>
 </module>
 
