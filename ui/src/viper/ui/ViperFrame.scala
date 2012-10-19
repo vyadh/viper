@@ -1,15 +1,14 @@
 package viper.ui
 
 import javax.swing._
-import java.awt.{Color, Component, BorderLayout}
+import java.awt.BorderLayout
 import ca.odell.glazedlists._
-import table.TableCellRenderer
 import viper.domain.{RecordPrototype, Record, Subscriber, Subscription}
 import matchers.TextMatcherEditor
 import java.util
 import collection.mutable
 import collection.JavaConversions.seqAsJavaList
-import viper.util.{Colours, EQ}
+import viper.util.EQ
 
 class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
@@ -56,12 +55,10 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
   }
 
   def createMainComponents(subscriberEventList: EventList[Subscriber]): MainComponents = {
-    val subscriberList = new ListPanel[Subscriber](subscriberEventList, changeTo)
+    val subscriberList = new SubscriberList(subscriberEventList)
     val searchBox = new SearchBox(filter) { setEnabled(false) }
     val table = new RecordTable
     val preview = new JTextArea
-
-    subscriberList.setCellRenderer(new SubscriberCellRenderer)
 
     new MainComponents(subscriberList, searchBox, table, preview)
   }
@@ -179,20 +176,16 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
   }
 
 
-  // Record-specific components
+  // Viper-specific components
+
+  class SubscriberList(subscriberEventList: EventList[Subscriber])
+        extends ListPanel[Subscriber](subscriberEventList, changeTo) {
+
+    setCellRenderer(new SubscriberCellRenderer)
+  }
 
   class RecordTable extends FilterableSortableTable[Record] {
-    override def prepareRenderer(renderer: TableCellRenderer, row: Int, column: Int): Component = {
-      val c = super.prepareRenderer(renderer, row, column)
-      val r = getModel.getValueAt(row, 0).asInstanceOf[Record]
-
-      if (isRowSelected(row)) {
-        c.setForeground(Colours.blend(r.severity.colour, Color.white, 150))
-      } else {
-        c.setForeground(r.severity.colour)
-      }
-      c
-    }
+    setDefaultRenderer(classOf[Object], new RecordTableCellRender)
   }
 
 }
