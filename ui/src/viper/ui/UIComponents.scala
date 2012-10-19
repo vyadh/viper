@@ -43,6 +43,11 @@ trait UIComponents {
     setFloatable(false)
     setLayout(new BoxLayout(this, BoxLayout.X_AXIS)) // Fix for Nimbus bug 7085425
 
+    override def add(c: Component): Component = {
+      super.add(Box.createHorizontalStrut(5))
+      super.add(c)
+    }
+
     def addFiller() {
       add(Box.createHorizontalGlue())
     }
@@ -131,6 +136,13 @@ trait UIComponents {
       setText(text)
       restoring = false
     }
+  }
+
+  class Slider(min: Int, max: Int) extends JSlider(min, max) {
+    setMajorTickSpacing(1)
+    setPaintTicks(true)
+    setPaintTrack(true)
+    setSnapToTicks(true)
   }
 
   class EmptyBorder(size: Int) extends javax.swing.border.EmptyBorder(size, size, size, size)

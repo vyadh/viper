@@ -1,7 +1,7 @@
 package viper.ui
 
 import javax.swing._
-import java.awt.BorderLayout
+import java.awt.{Dimension, BorderLayout}
 import ca.odell.glazedlists._
 import viper.domain.{RecordPrototype, Record, Subscriber, Subscription}
 import matchers.TextMatcherEditor
@@ -67,7 +67,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
     val content = getContentPane
 
     // Components
-    val toolBar = createToolBar(components.searchBox)
+    val toolBar = createToolBar(new SeverityLevel, components.searchBox)
     val subscriptionScroll = new ScrollPane(components.subscriptionList)
     val tableWithPreview = new VerticalSplitPane(new ScrollPane(components.table), components.preview)
     val main = new HorizontalSplitPane(subscriptionScroll, tableWithPreview)
@@ -82,8 +82,11 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
     content.add(main, BorderLayout.CENTER)
   }
 
-  def createToolBar(searchBox: SearchBox) = new ToolBar() {
+  def createToolBar(severityLevel: SeverityLevel, searchBox: SearchBox) = new ToolBar {
     addFiller()
+    add(severityLevel.label)
+    add(severityLevel)
+    addSeparator()
     add(new JLabel("Search "))
     add(searchBox)
   }
@@ -147,7 +150,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
   def sortedList(eventList: EventList[Record]) = new SortedList[Record](eventList, null)
 
   def filteredList(prototype: RecordPrototype, eventList: SortedList[Record]):
-  (TextMatcherEditor[Record], FilterList[Record]) = {
+        (TextMatcherEditor[Record], FilterList[Record]) = {
 
     val filterator = new TextFilterator[Record] {
       def getFilterStrings(baseList: util.List[String], element: Record) {
@@ -186,6 +189,11 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
   class RecordTable extends FilterableSortableTable[Record] {
     setDefaultRenderer(classOf[Object], new RecordTableCellRender)
+  }
+
+  class SeverityLevel extends Slider(0, 5) {
+    setMaximumSize(new Dimension(80, 20))
+    val label = new JLabel("{Level}")
   }
 
 }
