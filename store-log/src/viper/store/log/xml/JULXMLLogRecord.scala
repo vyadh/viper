@@ -15,5 +15,6 @@ case class JULXMLLogRecord(
       message: String) extends Record with Levelable {
 
   def datetime = new Date(timestamp)
+  def body = message
 
 }

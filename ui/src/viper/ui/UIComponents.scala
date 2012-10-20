@@ -11,26 +11,57 @@ import ca.odell.glazedlists.gui.{AbstractTableComparatorChooser, TableFormat}
 trait UIComponents {
 
   class FilterableSortableTable[T] extends JTable {
-    var installed: Option[TableComparatorChooser[T]] = None
+    private var installed: Option[TableComparatorChooser[T]] = None
+    private var selectionListeners = Seq[ListSelectionListener]()
+
+    def selected = getSelectionModel.asInstanceOf[EventSelectionModel[T]].getSelected
+
+    def addSelectionListener(listener: => Unit) {
+      if (installed.isDefined) throw new IllegalStateException("Add listeners before install")
+
+      selectionListeners = selectionListeners ++ Seq(new ListSelectionListener {
+        def valueChanged(e: ListSelectionEvent) {
+          if (!e.getValueIsAdjusting) listener
+        }
+      })
+    }
 
     def install(filtered: FilterList[T], sorted: SortedList[T], format: TableFormat[T]) {
       uninstall()
 
       setModel(new EventTableModel[T](filtered, format))
+      installSelectionListeners(filtered)
+      installSortedTable(sorted)
+    }
 
+    private def installSelectionListeners(eventList: EventList[T]) {
+      setSelectionModel(new EventSelectionModel[T](eventList))
+      selectionListeners.foreach(getSelectionModel.addListSelectionListener(_))
+    }
+
+    private def installSortedTable(eventList: SortedList[T]) {
       installed = Some(
-        TableComparatorChooser.install(this, sorted, AbstractTableComparatorChooser.SINGLE_COLUMN)
+        TableComparatorChooser.install(this, eventList, AbstractTableComparatorChooser.SINGLE_COLUMN)
       )
     }
 
     def uninstall() {
+      uninstallSelectionListeners()
+      uninstallSortedTable()
+    }
+
+    private def uninstallSelectionListeners() {
+      selectionListeners.foreach(getSelectionModel.removeListSelectionListener(_))
+    }
+
+    def uninstallSortedTable() {
       installed.foreach(_.dispose())
       installed = None
     }
 
     def hideColumn(index: Int) {
       val cm = getColumnModel
-      cm.removeColumn(cm.getColumn(0))
+      cm.removeColumn(cm.getColumn(index))
     }
   }
 

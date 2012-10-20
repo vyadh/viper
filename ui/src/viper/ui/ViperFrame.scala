@@ -189,6 +189,9 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
   class RecordTable extends FilterableSortableTable[Record] {
     setDefaultRenderer(classOf[Object], new RecordTableCellRender)
+    addSelectionListener { main.preview.setText(first.body) }
+
+    def first = selected.get(0)
   }
 
   class SeverityLevel extends Slider(0, 5) {
