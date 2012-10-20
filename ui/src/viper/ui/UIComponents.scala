@@ -54,7 +54,7 @@ trait UIComponents {
       selectionListeners.foreach(getSelectionModel.removeListSelectionListener(_))
     }
 
-    def uninstallSortedTable() {
+    private def uninstallSortedTable() {
       installed.foreach(_.dispose())
       installed = None
     }
