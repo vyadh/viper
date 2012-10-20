@@ -36,7 +36,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val subscriberList = new SubscriberList(subscriberEventList, changeTo)
     val severitySlider = new SeveritySlider(updateCurrentSeverity) { setEnabled(false) }
     val searchBox = new SearchBox(search) { setEnabled(false) }
-    val preview = new JTextArea
+    val preview = new JTextArea { setEditable(false) }
     val table = new RecordTable(preview)
 
     new MainComponents(subscriberList, severitySlider, searchBox, table, preview)
@@ -102,7 +102,10 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
   def removeSubscription(subscriber: Subscriber) {
     val view = viewObjectsBySubscriber.remove(subscriber)
-    view.map(_.subscription).foreach(_.stop())
+    for (v <- view) {
+      v.subscription.stop()
+      v.eventLists.foreach { _.dispose() }
+    }
 
     subscriberEventList.remove(subscriber)
     // todo and if it is the currently viewed subscription?

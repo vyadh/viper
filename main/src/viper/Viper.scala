@@ -59,7 +59,7 @@ object Viper {
       new LogRecord("7", "xp08", new Date(), Info, "Portia", "Test commit to BB"),
       new LogRecord("8", "xp08", new Date(), Config, "MRD", "Some param"),
       new LogRecord("9", "xp08", new Date(), Fine, "Whoo", "One fine day..."),
-      new LogRecord("10", "xp08", new Date(), Finer, "Whooo", "One fine day..."),
+      new LogRecord("10", "xp08", new Date(), Finer, "whooo", "One fine day..."),
       new LogRecord("11", "xp08", new Date(), Finest, "Whooo", "One fine day...")
     )
   }

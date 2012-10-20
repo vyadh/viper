@@ -30,7 +30,9 @@ trait ViperComponents extends UIComponents {
     filterer: TextMatcherEditor[Record],
     var currentSearchFilter: String = "",
     var currentSeverityFilter: Severity = Severities.all
-  )
+  ) {
+    def eventLists = Seq(filtered, sorted, severitied, data)
+  }
 
   class SubscriberList(subscriberEventList: EventList[Subscriber], onSelection: Subscriber => Unit)
     extends ListPanel[Subscriber](subscriberEventList, onSelection) {
