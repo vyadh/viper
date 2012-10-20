@@ -28,7 +28,8 @@ trait ViperComponents extends UIComponents {
     sorted: SortedList[Record],
     filtered: FilterList[Record],
     filterer: TextMatcherEditor[Record],
-    var filter: String
+    var currentSearchFilter: String = "",
+    var currentSeverityFilter: Severity = Severities.all
   )
 
   class SubscriberList(subscriberEventList: EventList[Subscriber], onSelection: Subscriber => Unit)
@@ -44,24 +45,30 @@ trait ViperComponents extends UIComponents {
     def first = selected.get(0)
   }
 
-  class SeveritySlider extends Slider {
+  class SeveritySlider(onSeverityChange: Severity => Unit) extends Slider {
     setMaximumSize(new Dimension(80, 20))
     val label = new JLabel("Severity")
 
-    def install(thresholdList: ThresholdList[Record]) {
+    override def onChange(value: Int) {
+      onSeverityChange(Severities.values.find(value == _.ordinal).get)
+    }
+
+    def install(thresholdList: ThresholdList[Record], current: Severity) {
       // todo can we get filtering to happen on separate thread?
       // todo slider can be jerky with 100,000 elements ;)
       val model = GlazedListsSwing.lowerRangeModel(thresholdList)
       // Force update using adjusting
       // (possibly bug in GL, setRangeProperties looks at ThresholdList max for change, not max of super
-      setRangeProperties(model, true)
-      setRangeProperties(model, false)
+      setRangeProperties(model, current, true)
+      setRangeProperties(model, current, false)
       setModel(model)
+
+      setValue(current.ordinal)
     }
 
-    private def setRangeProperties(model: BoundedRangeModel, adjusting: Boolean) {
+    private def setRangeProperties(model: BoundedRangeModel, current: Severity, adjusting: Boolean) {
       model.setRangeProperties(
-        Severities.all.ordinal,
+        current.ordinal,
         Severities.min.ordinal,
         Severities.min.ordinal,
         Severities.max.ordinal,

@@ -1,7 +1,7 @@
 package viper.ui
 
 import javax.swing._
-import event.{CaretEvent, CaretListener, ListSelectionEvent, ListSelectionListener}
+import event._
 import java.awt.{Dimension, Component, CardLayout, Color}
 import ca.odell.glazedlists.{SortedList, FilterList, EventList}
 import ca.odell.glazedlists.swing.{EventSelectionModel, TableComparatorChooser, EventTableModel, EventListModel}
@@ -174,6 +174,22 @@ trait UIComponents {
     setPaintTicks(true)
     setPaintTrack(true)
     setSnapToTicks(true)
+
+    addChangeListener(new ChangeListener {
+      def stateChanged(e: ChangeEvent) {
+        if (!getValueIsAdjusting) {
+          onChange(getValue)
+        }
+      }
+    })
+
+    def onChange(value: Int) { }
+
+    def restore(value: Int) {
+      setValueIsAdjusting(false)
+      setValue(value)
+      setValueIsAdjusting(true)
+    }
   }
 
   class EmptyBorder(size: Int) extends javax.swing.border.EmptyBorder(size, size, size, size)

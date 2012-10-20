@@ -3,7 +3,7 @@ package viper.ui
 import javax.swing._
 import java.awt.BorderLayout
 import ca.odell.glazedlists._
-import viper.domain.{Record, Subscriber, Subscription}
+import viper.domain.{Severity, Record, Subscriber, Subscription}
 import collection.mutable
 import collection.JavaConversions.seqAsJavaList
 import viper.util.EQ
@@ -34,8 +34,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
   private def createMainComponents(subscriberEventList: EventList[Subscriber]): MainComponents = {
     val subscriberList = new SubscriberList(subscriberEventList, changeTo)
-    val severitySlider = new SeveritySlider { setEnabled(false) }
-    val searchBox = new SearchBox(filter) { setEnabled(false) }
+    val severitySlider = new SeveritySlider(updateCurrentSeverity) { setEnabled(false) }
+    val searchBox = new SearchBox(search) { setEnabled(false) }
     val preview = new JTextArea
     val table = new RecordTable(preview)
 
@@ -76,8 +76,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   private def changeTo(subscriber: Subscriber) {
     val view = viewObjectsBySubscriber(subscriber)
 
-    main.severitySlider.install(view.severitied)
-    main.searchBox.restore(view.filter)
+    main.severitySlider.install(view.severitied, view.currentSeverityFilter)
+    main.searchBox.restore(view.currentSearchFilter)
     main.table.install(view.filtered, view.sorted, view.format)
 
     main.severitySlider.setEnabled(true)
@@ -86,10 +86,15 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     main.table.hideColumn(0) // First column is always record, so don't display it
   }
 
-  private def filter(expression: String) {
+  private def search(expression: String) {
     val filterer = activeView.filterer
-    def updateViewFilter() { activeView.filter = expression }
-    filter(expression, filterer, updateViewFilter)
+    def updateCurrentSearch() { activeView.currentSearchFilter = expression }
+    filter(expression, filterer, updateCurrentSearch)
+  }
+
+  /** Store the current severity on the active view if it is changed so we can restore later. */
+  private def updateCurrentSeverity(severity: Severity) {
+    activeView.currentSeverityFilter = severity
   }
 
 
@@ -123,7 +128,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val sorted = sortedList(severitied)
     val (filterer, filtered) = filteredList(subscription.prototype, sorted)
 
-    ViewObjects(subscription, format, data, severitied, sorted, filtered, filterer, "")
+    ViewObjects(subscription, format, data, severitied, sorted, filtered, filterer)
   }
 
   private def subscribe(subscription: Subscription): EventList[Record] = {
