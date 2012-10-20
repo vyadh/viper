@@ -3,9 +3,7 @@ package viper.ui
 import javax.swing._
 import java.awt.BorderLayout
 import ca.odell.glazedlists._
-import viper.domain.{RecordPrototype, Record, Subscriber, Subscription}
-import matchers.TextMatcherEditor
-import java.util
+import viper.domain.{Record, Subscriber, Subscription}
 import collection.mutable
 import collection.JavaConversions.seqAsJavaList
 import viper.util.EQ
@@ -129,28 +127,6 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     // Subscribe to events by adding them to the event list as they come in
     subscription.deliver(records => EQ.later { result.addAll(records) })
     result
-  }
-
-  private def thresholdList(eventList: EventList[Record]): ThresholdList[Record] =
-    new ThresholdList[Record](eventList, new RecordSeverityThresholdEvaluator())
-
-  private def sortedList(eventList: EventList[Record]) =
-    new SortedList[Record](eventList, null)
-
-  private def filteredList(prototype: RecordPrototype, eventList: SortedList[Record]):
-        (TextMatcherEditor[Record], FilterList[Record]) = {
-
-    val filterator = new TextFilterator[Record] {
-      def getFilterStrings(baseList: util.List[String], element: Record) {
-        for (field <- prototype.fields) {
-          baseList.add(field.value(element).toString)
-        }
-      }
-    }
-    val textMatcherEditor = new TextMatcherEditor[Record](filterator)
-    val filteredEventList = new FilterList[Record](eventList, textMatcherEditor)
-
-    (textMatcherEditor, filteredEventList)
   }
 
 
