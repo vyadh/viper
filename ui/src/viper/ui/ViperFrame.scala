@@ -77,7 +77,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val view = viewObjectsBySubscriber(subscriber)
 
     main.severitySlider.install(view.severitied, view.currentSeverityFilter)
-    main.searchBox.restore(view.currentSearchFilter)
+    main.searchBox.setText(view.currentSearchFilter)
     main.table.install(view.filtered, view.sorted, view.format)
 
     main.severitySlider.setEnabled(true)

@@ -2,9 +2,11 @@ package viper.ui
 
 import ca.odell.glazedlists.matchers.TextMatcherEditor
 import viper.domain.Record
-import actors.Actor._
 
 trait RecordFiltering {
+
+  /** Cache of previous command, to ensure the new filter operation is necessary. */
+  var previous = ""
 
   /** Command to do filtering. */
   private case class Filter(
@@ -26,14 +28,22 @@ trait RecordFiltering {
 
 
   /** Actor helps avoid blocking UI thread when filtering large amount of data. */
-  private val filterActor = actor {
-    loop {
-      react {
-        case command: Filter => filterInThread(command)
-        case ExitFiltering => exit()
+  private val filterActor = new scala.actors.Actor {
+    def act() {
+      while (true) {
+        receive {
+          case command: Filter => {
+            // Only execute commands if there is nothing else in the mailbox
+            // This has the disadvantage that it will always do at least two work items (first and last)
+            if (mailboxSize == 0) {
+              filterInThread(command)
+            }
+          }
+          case ExitFiltering => exit()
+        }
       }
     }
-  }
+  }.start()
 
   private def filterInThread(command: Filter) {
     import TextMatcherEditor._

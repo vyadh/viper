@@ -144,28 +144,38 @@ trait UIComponents {
   }
 
   class SearchBox(onChange: String => Unit) extends JTextField {
-    var restoring = false
+
+    /** Record the last text so that we only trigger updates when it has changed. */
+    var last = getText
+    /** When to do on changes to text. */
+    val listener = new DocumentListener {
+      def insertUpdate(e: DocumentEvent) { update() }
+      def removeUpdate(e: DocumentEvent) { update() }
+      def changedUpdate(e: DocumentEvent) { }
+    }
 
     val dimension = new Dimension(200, 20)
     //    setSize(dimension)
     setPreferredSize(dimension)
     setMaximumSize(dimension)
     //    setMinimumSize(dimension)
+    getDocument.addDocumentListener(listener)
 
-    addCaretListener(new CaretListener {
-      def caretUpdate(e: CaretEvent) {
-        if (isEnabled && !restoring) {
-          onChange(getText)
-        }
+    /** Trigger updates, but only when needed. */
+    private def update() {
+      val text = getText
+      if (text != last) {
+        last = text
+        onChange(text)
       }
-    })
+    }
 
-    /** Restore search text, without triggering an update.
-      * Needs to be called on event thread. */
-    def restore(text: String) {
-      restoring = true
-      setText(text)
-      restoring = false
+    /** Override so updates are not triggered when the search box is updated programmatically.
+      * Any filtering is only kicked off when user changes the text, otherwise we assume it is already filtered. */
+    override def setText(t: String) {
+      getDocument.removeDocumentListener(listener)
+      super.setText(t)
+      getDocument.addDocumentListener(listener)
     }
   }
 
