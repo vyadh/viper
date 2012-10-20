@@ -1,17 +1,21 @@
 package viper.ui
 
-import ca.odell.glazedlists.{FilterList, SortedList, EventList}
-import viper.domain.{Subscription, Record, Subscriber}
+import ca.odell.glazedlists.{ThresholdList, FilterList, SortedList, EventList}
+import viper.domain._
 import javax.swing.{JLabel, JTextArea}
 import java.awt.Dimension
 import ca.odell.glazedlists.matchers.TextMatcherEditor
+import ca.odell.glazedlists.swing.GlazedListsSwing
+import viper.domain.Subscriber
+import viper.domain.Subscription
 
 trait ViperComponents extends UIComponents {
 
   case class MainComponents(
     subscriptionList: ListPanel[Subscriber],
+    severitySlider: SeveritySlider,
     searchBox: SearchBox,
-    table: FilterableSortableTable[Record],
+    table: RecordTable,
     preview: JTextArea
   )
 
@@ -19,6 +23,7 @@ trait ViperComponents extends UIComponents {
     subscription: Subscription,
     format: RecordTableFormat,
     data: EventList[Record],
+    severitied: ThresholdList[Record],
     sorted: SortedList[Record],
     filtered: FilterList[Record],
     filterer: TextMatcherEditor[Record],
@@ -38,9 +43,19 @@ trait ViperComponents extends UIComponents {
     def first = selected.get(0)
   }
 
-  class SeverityLevel extends Slider(0, 5) {
+  class SeveritySlider extends Slider(0, 5) {
     setMaximumSize(new Dimension(80, 20))
-    val label = new JLabel("{Level}")
+    val label = new JLabel("Severity")
+
+    def install(thresholdList: ThresholdList[Record]) {
+      val model = GlazedListsSwing.lowerRangeModel(thresholdList);
+      model.setRangeProperties(Severities.min.ordinal, 1, Severities.min.ordinal, Severities.max.ordinal, false)
+      setModel(model)
+    }
+  }
+
+  class RecordSeverityThresholdEvaluator extends ThresholdList.Evaluator[Record] {
+    def evaluate(record: Record) = record.severity.ordinal
   }
 
 }

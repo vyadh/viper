@@ -36,18 +36,19 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
   private def createMainComponents(subscriberEventList: EventList[Subscriber]): MainComponents = {
     val subscriberList = new SubscriberList(subscriberEventList, changeTo)
+    val severitySlider = new SeveritySlider
     val searchBox = new SearchBox(filter) { setEnabled(false) }
     val preview = new JTextArea
     val table = new RecordTable(preview)
 
-    new MainComponents(subscriberList, searchBox, table, preview)
+    new MainComponents(subscriberList, severitySlider, searchBox, table, preview)
   }
 
   private def initLayout(components: MainComponents) {
     val content = getContentPane
 
     // Components
-    val toolBar = createToolBar(new SeverityLevel, components.searchBox)
+    val toolBar = createToolBar(components.severitySlider, components.searchBox)
     val subscriptionScroll = new ScrollPane(components.subscriptionList)
     val tableWithPreview = new VerticalSplitPane(new ScrollPane(components.table), components.preview)
     val main = new HorizontalSplitPane(subscriptionScroll, tableWithPreview)
@@ -62,7 +63,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     content.add(main, BorderLayout.CENTER)
   }
 
-  private def createToolBar(severityLevel: SeverityLevel, searchBox: SearchBox) = new ToolBar {
+  private def createToolBar(severityLevel: SeveritySlider, searchBox: SearchBox) = new ToolBar {
     addFiller()
     add(severityLevel.label)
     add(severityLevel)
@@ -76,6 +77,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
   private def changeTo(subscriber: Subscriber) {
     val view = viewObjectsBySubscriber(subscriber)
+    main.severitySlider.install(view.severitied)
     main.searchBox.restore(view.filter)
     main.table.install(view.filtered, view.sorted, view.format)
     main.searchBox.setEnabled(true)
@@ -114,10 +116,12 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val format = new RecordTableFormat(subscription.prototype)
 
     val data = subscribe(subscription)
-    val sorted = sortedList(data)
+
+    val severitied = thresholdList(data)
+    val sorted = sortedList(severitied)
     val (filterer, filtered) = filteredList(subscription.prototype, sorted)
 
-    ViewObjects(subscription, format, data, sorted, filtered, filterer, "")
+    ViewObjects(subscription, format, data, severitied, sorted, filtered, filterer, "")
   }
 
   private def subscribe(subscription: Subscription): EventList[Record] = {
@@ -127,7 +131,11 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     result
   }
 
-  private def sortedList(eventList: EventList[Record]) = new SortedList[Record](eventList, null)
+  private def thresholdList(eventList: EventList[Record]): ThresholdList[Record] =
+    new ThresholdList[Record](eventList, new RecordSeverityThresholdEvaluator())
+
+  private def sortedList(eventList: EventList[Record]) =
+    new SortedList[Record](eventList, null)
 
   private def filteredList(prototype: RecordPrototype, eventList: SortedList[Record]):
         (TextMatcherEditor[Record], FilterList[Record]) = {
