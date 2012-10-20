@@ -34,7 +34,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
   private def createMainComponents(subscriberEventList: EventList[Subscriber]): MainComponents = {
     val subscriberList = new SubscriberList(subscriberEventList, changeTo)
-    val severitySlider = new SeveritySlider
+    val severitySlider = new SeveritySlider { setEnabled(false) }
     val searchBox = new SearchBox(filter) { setEnabled(false) }
     val preview = new JTextArea
     val table = new RecordTable(preview)
@@ -75,10 +75,14 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
   private def changeTo(subscriber: Subscriber) {
     val view = viewObjectsBySubscriber(subscriber)
+
     main.severitySlider.install(view.severitied)
     main.searchBox.restore(view.filter)
     main.table.install(view.filtered, view.sorted, view.format)
+
+    main.severitySlider.setEnabled(true)
     main.searchBox.setEnabled(true)
+
     main.table.hideColumn(0) // First column is always record, so don't display it
   }
 

@@ -20,5 +20,6 @@ object Severities {
   val values = Seq(Severe, Warning, Info, Config, Fine, Finer, Finest)
   val min = Finest
   val max = Severe
+  val all = Finest
   val count = values.size
 }

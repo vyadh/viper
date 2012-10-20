@@ -2,7 +2,7 @@ package viper.ui
 
 import ca.odell.glazedlists._
 import viper.domain._
-import javax.swing.{JLabel, JTextArea}
+import javax.swing.{BoundedRangeModel, JLabel, JTextArea}
 import java.awt.Dimension
 import ca.odell.glazedlists.matchers.TextMatcherEditor
 import ca.odell.glazedlists.swing.GlazedListsSwing
@@ -44,14 +44,28 @@ trait ViperComponents extends UIComponents {
     def first = selected.get(0)
   }
 
-  class SeveritySlider extends Slider(0, 5) {
+  class SeveritySlider extends Slider {
     setMaximumSize(new Dimension(80, 20))
     val label = new JLabel("Severity")
 
     def install(thresholdList: ThresholdList[Record]) {
-      val model = GlazedListsSwing.lowerRangeModel(thresholdList);
-      model.setRangeProperties(Severities.min.ordinal, 1, Severities.min.ordinal, Severities.max.ordinal, false)
+      // todo can we get filtering to happen on separate thread?
+      // todo slider can be jerky with 100,000 elements ;)
+      val model = GlazedListsSwing.lowerRangeModel(thresholdList)
+      // Force update using adjusting
+      // (possibly bug in GL, setRangeProperties looks at ThresholdList max for change, not max of super
+      setRangeProperties(model, true)
+      setRangeProperties(model, false)
       setModel(model)
+    }
+
+    private def setRangeProperties(model: BoundedRangeModel, adjusting: Boolean) {
+      model.setRangeProperties(
+        Severities.all.ordinal,
+        Severities.min.ordinal,
+        Severities.min.ordinal,
+        Severities.max.ordinal,
+        adjusting)
     }
   }
 
@@ -66,7 +80,7 @@ trait ViperComponents extends UIComponents {
     new SortedList[T](eventList, null)
 
   protected def filteredList(prototype: RecordPrototype, eventList: SortedList[Record]):
-  (TextMatcherEditor[Record], FilterList[Record]) = {
+        (TextMatcherEditor[Record], FilterList[Record]) = {
 
     val filterator = new TextFilterator[Record] {
       def getFilterStrings(baseList: util.List[String], element: Record) {

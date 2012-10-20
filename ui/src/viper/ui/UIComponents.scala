@@ -169,7 +169,7 @@ trait UIComponents {
     }
   }
 
-  class Slider(min: Int, max: Int) extends JSlider(min, max) {
+  class Slider extends JSlider(0, 1) {
     setMajorTickSpacing(1)
     setPaintTicks(true)
     setPaintTrack(true)
