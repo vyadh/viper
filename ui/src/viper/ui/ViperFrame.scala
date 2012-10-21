@@ -7,6 +7,7 @@ import viper.domain._
 import collection.mutable
 import collection.JavaConversions.seqAsJavaList
 import viper.util.EQ
+import collection.JavaConversions.collectionAsScalaIterable
 
 class ViperFrame(val name: String) extends JFrame(name) with UI with ViperComponents with RecordFiltering {
 
@@ -51,6 +52,11 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val tableWithPreview = new VerticalSplitPane(new ScrollPane(components.table), components.preview)
     val main = new HorizontalSplitPane(subscriptionScroll, tableWithPreview)
 
+    // Popup table menu
+    components.table.setComponentPopupMenu(new JPopupMenu {
+      add(Actions.markRead)
+    })
+
     // Borders
     val border = 3
     toolBar.setBorder(BorderFactory.createCompoundBorder(toolBar.getBorder, new EmptyBorder(border)))
@@ -62,6 +68,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   }
 
   private def createToolBar(severityLevel: SeveritySlider, searchBox: SearchBox) = new ToolBar {
+    add(Actions.markRead)
     addFiller()
     add(severityLevel.label)
     add(severityLevel)
@@ -104,16 +111,17 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
       // Mark as read if just one selected
       if (selected.size == 1) {
-        first match {
-          case r: Readable => {
-            r.read = true
-            // Tell GL to repaint
-            selected.set(selected.indexOf(r), first)
-          }
-          case _ =>
-        }
+        markRead(first)
+        selected.set(selected.indexOf(first), first) // Tell GL to repaint
       }
     }
+  }
+
+  private def markAllRead() {
+    for (record <- main.table.selected) {
+      markRead(record)
+    }
+    main.table.getSelectionModel.clearSelection()
   }
 
 
@@ -171,6 +179,22 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
       throw new IllegalStateException("No active view")
     }
     opt.get
+  }
+
+  private def markRead(record: Record) {
+    record match {
+      case r: Readable if !r.read => {
+        r.read = true
+      }
+      case _ =>
+    }
+  }
+
+
+  // Actions
+
+  object Actions {
+    val markRead = new SimpleAction("Mark Read", markAllRead)
   }
 
 }

@@ -7,6 +7,8 @@ import ca.odell.glazedlists.{SortedList, FilterList, EventList}
 import ca.odell.glazedlists.swing.{EventSelectionModel, TableComparatorChooser, EventTableModel, EventListModel}
 import collection.mutable
 import ca.odell.glazedlists.gui.{AbstractTableComparatorChooser, TableFormat}
+import java.awt.event.ActionEvent
+import javax.imageio.ImageIO
 
 trait UIComponents {
 
@@ -203,5 +205,20 @@ trait UIComponents {
   }
 
   class EmptyBorder(size: Int) extends javax.swing.border.EmptyBorder(size, size, size, size)
+
+  class SimpleAction(name: String, action: => Unit) extends AbstractAction(name) {
+    putValue(Action.SHORT_DESCRIPTION, name)
+    putValue(Action.SMALL_ICON, icon(name, 16))
+    putValue(Action.LARGE_ICON_KEY, icon(name, 24))
+
+    def actionPerformed(e: ActionEvent) {
+      action
+    }
+  }
+
+  def icon(name: String, size: Int): Icon = {
+    val file = name.replace(" ", "").toLowerCase + '_' + size + ".png"
+    new ImageIcon(ImageIO.read(this.getClass.getResourceAsStream("images/" + file)))
+  }
 
 }
