@@ -3,7 +3,7 @@ package viper.ui
 import javax.swing._
 import java.awt.BorderLayout
 import ca.odell.glazedlists._
-import viper.domain.{Severity, Record, Subscriber, Subscription}
+import viper.domain._
 import collection.mutable
 import collection.JavaConversions.seqAsJavaList
 import viper.util.EQ
@@ -37,7 +37,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val severitySlider = new SeveritySlider(updateCurrentSeverity) { setEnabled(false) }
     val searchBox = new SearchBox(search) { setEnabled(false) }
     val preview = new JTextArea { setEditable(false) }
-    val table = new RecordTable(preview)
+    val table = new RecordTable(select(preview))
 
     new MainComponents(subscriberList, severitySlider, searchBox, table, preview)
   }
@@ -95,6 +95,25 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   /** Store the current severity on the active view if it is changed so we can restore later. */
   private def updateCurrentSeverity(severity: Severity) {
     activeView.currentSeverityFilter = severity
+  }
+
+  private def select(preview: JTextArea)(selected: EventList[Record]) {
+    if (!selected.isEmpty) {
+      val first = selected.get(0)
+      preview.setText(first.body)
+
+      // Mark as read if just one selected
+      if (selected.size == 1) {
+        first match {
+          case r: Readable => {
+            r.read = true
+            // Tell GL to repaint
+            selected.set(selected.indexOf(r), first)
+          }
+          case _ =>
+        }
+      }
+    }
   }
 
 

@@ -26,7 +26,6 @@ class AlphaTableCellRenderer extends JLabel with TableCellRenderer {
     column: Int): Component = {
 
     setText(value.toString)
-    setBackground(if (row % 2 == 0) Color.white else alternateRowColour)
 
     // Use paintComponent to paint the selection
     selected = isSelected
@@ -36,6 +35,7 @@ class AlphaTableCellRenderer extends JLabel with TableCellRenderer {
 
   override def paintComponent(g: Graphics) {
     super.paintComponent(g)
+
     if (selected) {
       val image = new BufferedImage(getWidth, getHeight, BufferedImage.TYPE_INT_ARGB)
       val g2 = image.createGraphics()

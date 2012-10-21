@@ -9,3 +9,6 @@ trait Persistable extends Capability {
 trait Levelable extends Capability {
   val severity: Severity
 }
+trait Readable extends Capability {
+  var read: Boolean
+}

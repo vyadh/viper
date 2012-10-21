@@ -40,11 +40,13 @@ trait ViperComponents extends UIComponents {
     setCellRenderer(new SubscriberCellRenderer)
   }
 
-  class RecordTable(preview: JTextArea) extends FilterableSortableTable[Record] {
+  class RecordTable(onSelection: EventList[Record] => Unit) extends FilterableSortableTable[Record] {
     setDefaultRenderer(classOf[Object], new RecordTableCellRender)
-    addSelectionListener { preview.setText(first.body) }
+    addSelectionListener { onSelection(selected) }
 
-    def first = selected.get(0)
+    // Line border between rows
+    setIntercellSpacing(new Dimension(0, 1))
+    setBackground(ColorScheme.tableSeparator)
   }
 
   class SeveritySlider(onSeverityChange: Severity => Unit) extends Slider {
