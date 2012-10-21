@@ -24,20 +24,24 @@ class RecordTableCellRender extends AlphaTableCellRenderer {
 
     setForeground(r.severity.colour)
 
-    if (read(r)) {
-      setFont(fontNorm)
-      setBackground(ColorScheme.recordRead)
-    } else {
-      setFont(fontBold)
-      setBackground(ColorScheme.recordUnread)
+    read(r) match {
+      case Some(true) =>
+        setFont(fontNorm)
+        setBackground(ColorScheme.recordRead)
+      case Some(false) =>
+        setFont(fontBold)
+        setBackground(ColorScheme.recordUnread)
+      case None =>
+        setFont(fontNorm)
+        setBackground(ColorScheme.recordUnread)
     }
 
     this
   }
 
   def read(record: Record) = record match {
-    case r: Readable => r.read
-    case _ => true
+    case r: Readable => Some(r.read)
+    case _ => None
   }
 
 }
