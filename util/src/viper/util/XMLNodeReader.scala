@@ -1,11 +1,13 @@
 package viper.util
 
 import java.io.Reader
-import javax.xml.stream.{XMLStreamConstants, XMLInputFactory}
+import javax.xml.stream._
+import scala.Some
+import XMLStreamConstants._
 
 class XMLNodeReader(reader: Reader, interesting: String => Boolean) {
 
-  lazy val er = XMLInputFactory.newInstance.createXMLEventReader(reader)
+  var sr = createXMLStreamReader(reader)
 
   /**
    * @return xml nodes until there are no more, in which case return none
@@ -15,29 +17,37 @@ class XMLNodeReader(reader: Reader, interesting: String => Boolean) {
     var reading = false
     val content = new StringBuilder
 
-    while (er.hasNext) {
-      val event = er.nextEvent()
+    while (sr.hasNext) {
 
-      event.getEventType match {
-        case XMLStreamConstants.START_ELEMENT =>
-          name = event.asStartElement.getName.getLocalPart
+      sr.next() match {
+        case START_ELEMENT =>
+          name = sr.getLocalName
           reading = interesting(name)
           content.clear()
 
-        case XMLStreamConstants.CHARACTERS if reading =>
-          content.append(event.asCharacters().getData)
+        case CHARACTERS if reading =>
+          content.append(sr.getText)
 
-        case XMLStreamConstants.END_ELEMENT =>
-          name = event.asEndElement.getName.getLocalPart
+        case END_ELEMENT =>
+          name = sr.getLocalName
           if (interesting(name)) {
             val node = new XMLNode(name, content.toString)
             return Some(node)
           }
 
+        case END_DOCUMENT =>
+          reader.close()
+          sr.close()
+
         case _ =>
       }
     }
+
     None
+  }
+
+  def createXMLStreamReader(reader: Reader): XMLStreamReader = {
+    XMLInputFactory.newInstance.createXMLStreamReader(reader)
   }
 
 }

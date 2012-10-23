@@ -6,7 +6,7 @@ import domain.{Record, Subscriber, Subscription}
 import store.log.xml.{JULXMLConsumer, JULXMLLogRecordPrototype}
 import ui.ViperFrame
 import java.util.Date
-import util.{EQ, PersistentFileReader}
+import util.{PersistentFileReader}
 
 object Viper {
 
@@ -20,8 +20,8 @@ object Viper {
     frame.addSubscription(jul)
   }
 
-  val name = "file.log"
-  val path = "/path/to/file" + name
+  val name = "example.log"
+  val path = "./" + name
   def julSubscriber = new Subscriber(name, path)
   def jul = new Subscription(julSubscriber, JULXMLLogRecordPrototype) {
     // todo needs to be done via Store
