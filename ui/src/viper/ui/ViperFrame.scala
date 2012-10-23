@@ -1,17 +1,15 @@
 package viper.ui
 
 import javax.swing._
-import java.awt.{Color, Component, BorderLayout}
+import java.awt.BorderLayout
 import ca.odell.glazedlists._
-import table.TableCellRenderer
-import viper.domain.{RecordPrototype, Record, Subscriber, Subscription}
-import matchers.TextMatcherEditor
-import java.util
+import viper.domain._
 import collection.mutable
 import collection.JavaConversions.seqAsJavaList
-import viper.util.{Colours, EQ}
+import viper.util.EQ
+import collection.JavaConversions.collectionAsScalaIterable
 
-class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
+class ViperFrame(val name: String) extends JFrame(name) with UI with ViperComponents with RecordFiltering {
 
   /** The currently active subscriptions, as shown in the left-side list. */
   val subscriberEventList = new BasicEventList[Subscriber]
@@ -27,53 +25,37 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
   }
 
 
-  // Useful classes
-
-  case class MainComponents(
-        subscriptionList: ListPanel[Subscriber],
-        searchBox: SearchBox,
-        table: FilterableSortableTable[Record],
-        preview: JTextArea
-  )
-
-  case class ViewObjects(
-        subscription: Subscription,
-        format: RecordTableFormat,
-        data: EventList[Record],
-        sorted: SortedList[Record],
-        filtered: FilterList[Record],
-        filterer: TextMatcherEditor[Record],
-        var filter: String
-  )
-
-
   // Component construction and Layout
 
-  def init(): MainComponents = {
+  private def init(): MainComponents = {
     val main = createMainComponents(subscriberEventList)
     initLayout(main)
     main
   }
 
-  def createMainComponents(subscriberEventList: EventList[Subscriber]): MainComponents = {
-    val subscriberList = new ListPanel[Subscriber](subscriberEventList, changeTo)
-    val searchBox = new SearchBox(filter) { setEnabled(false) }
-    val table = new RecordTable
-    val preview = new JTextArea
+  private def createMainComponents(subscriberEventList: EventList[Subscriber]): MainComponents = {
+    val subscriberList = new SubscriberList(subscriberEventList, changeTo)
+    val severitySlider = new SeveritySlider(updateCurrentSeverity) { setEnabled(false) }
+    val searchBox = new SearchBox(search) { setEnabled(false) }
+    val preview = new JTextArea { setEditable(false) }
+    val table = new RecordTable(select(preview))
 
-    subscriberList.setCellRenderer(new SubscriberCellRenderer)
-
-    new MainComponents(subscriberList, searchBox, table, preview)
+    new MainComponents(subscriberList, severitySlider, searchBox, table, preview)
   }
 
-  def initLayout(components: MainComponents) {
+  private def initLayout(components: MainComponents) {
     val content = getContentPane
 
     // Components
-    val toolBar = createToolBar(components.searchBox)
+    val toolBar = createToolBar(components.severitySlider, components.searchBox)
     val subscriptionScroll = new ScrollPane(components.subscriptionList)
     val tableWithPreview = new VerticalSplitPane(new ScrollPane(components.table), components.preview)
     val main = new HorizontalSplitPane(subscriptionScroll, tableWithPreview)
+
+    // Popup table menu
+    components.table.setComponentPopupMenu(new JPopupMenu {
+      add(Actions.markRead)
+    })
 
     // Borders
     val border = 3
@@ -85,8 +67,12 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
     content.add(main, BorderLayout.CENTER)
   }
 
-  def createToolBar(searchBox: SearchBox) = new ToolBar() {
+  private def createToolBar(severityLevel: SeveritySlider, searchBox: SearchBox) = new ToolBar {
+    add(Actions.markRead)
     addFiller()
+    add(severityLevel.label)
+    add(severityLevel)
+    addSeparator()
     add(new JLabel("Search "))
     add(searchBox)
   }
@@ -94,18 +80,48 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
   // Actions
 
-  def changeTo(subscriber: Subscriber) {
+  private def changeTo(subscriber: Subscriber) {
     val view = viewObjectsBySubscriber(subscriber)
-    main.searchBox.restore(view.filter)
+
+    main.severitySlider.install(view.severitied, view.currentSeverityFilter)
+    main.searchBox.setText(view.currentSearchFilter)
     main.table.install(view.filtered, view.sorted, view.format)
+
+    main.severitySlider.setEnabled(true)
     main.searchBox.setEnabled(true)
+
     main.table.hideColumn(0) // First column is always record, so don't display it
   }
 
-  def filter(expression: String) {
+  private def search(expression: String) {
     val filterer = activeView.filterer
-    def updateViewFilter() { activeView.filter = expression }
-    filter(expression, filterer, updateViewFilter)
+    def updateCurrentSearch() { activeView.currentSearchFilter = expression }
+    filter(expression, filterer, updateCurrentSearch)
+  }
+
+  /** Store the current severity on the active view if it is changed so we can restore later. */
+  private def updateCurrentSeverity(severity: Severity) {
+    activeView.currentSeverityFilter = severity
+  }
+
+  private def select(preview: JTextArea)(selected: EventList[Record]) {
+    if (!selected.isEmpty) {
+      val first = selected.get(0)
+      preview.setText(first.body)
+
+      // Mark as read if just one selected
+      if (selected.size == 1) {
+        markRead(first)
+        selected.set(selected.indexOf(first), first) // Tell GL to repaint
+      }
+    }
+  }
+
+  private def markAllRead() {
+    for (record <- main.table.selected) {
+      markRead(record)
+    }
+    main.table.getSelectionModel.clearSelection()
   }
 
 
@@ -113,7 +129,10 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
 
   def removeSubscription(subscriber: Subscriber) {
     val view = viewObjectsBySubscriber.remove(subscriber)
-    view.map(_.subscription).foreach(_.stop())
+    for (v <- view) {
+      v.subscription.stop()
+      v.eventLists.foreach { _.dispose() }
+    }
 
     subscriberEventList.remove(subscriber)
     // todo and if it is the currently viewed subscription?
@@ -130,47 +149,31 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
     subscriberEventList.add(subscription.subscriber)
   }
 
-  def viewObjects(subscription: Subscription): ViewObjects = {
+  private def viewObjects(subscription: Subscription): ViewObjects = {
     val format = new RecordTableFormat(subscription.prototype)
 
     val data = subscribe(subscription)
-    val sorted = sortedList(data)
+
+    val severitied = thresholdList(data)
+    val sorted = sortedList(severitied)
     val (filterer, filtered) = filteredList(subscription.prototype, sorted)
 
-    ViewObjects(subscription, format, data, sorted, filtered, filterer, "")
+    ViewObjects(subscription, format, data, severitied, sorted, filtered, filterer)
   }
 
-  def subscribe(subscription: Subscription): EventList[Record] = {
+  private def subscribe(subscription: Subscription): EventList[Record] = {
     val result = new BasicEventList[Record]()
     // Subscribe to events by adding them to the event list as they come in
     subscription.deliver(records => EQ.later { result.addAll(records) })
     result
   }
 
-  def sortedList(eventList: EventList[Record]) = new SortedList[Record](eventList, null)
-
-  def filteredList(prototype: RecordPrototype, eventList: SortedList[Record]):
-  (TextMatcherEditor[Record], FilterList[Record]) = {
-
-    val filterator = new TextFilterator[Record] {
-      def getFilterStrings(baseList: util.List[String], element: Record) {
-        for (field <- prototype.fields) {
-          baseList.add(field.value(element).toString)
-        }
-      }
-    }
-    val textMatcherEditor = new TextMatcherEditor[Record](filterator)
-    val filteredEventList = new FilterList[Record](eventList, textMatcherEditor)
-
-    (textMatcherEditor, filteredEventList)
-  }
-
 
   // Util functions
 
-  def activeSubscriber: Subscriber = main.subscriptionList.selected.get(0)
+  private def activeSubscriber: Subscriber = main.subscriptionList.selected.get(0)
 
-  def activeView: ViewObjects = {
+  private def activeView: ViewObjects = {
     val opt = viewObjectsBySubscriber.get(activeSubscriber)
     if (opt.isEmpty) {
       throw new IllegalStateException("No active view")
@@ -178,21 +181,20 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with Filtering {
     opt.get
   }
 
-
-  // Record-specific components
-
-  class RecordTable extends FilterableSortableTable[Record] {
-    override def prepareRenderer(renderer: TableCellRenderer, row: Int, column: Int): Component = {
-      val c = super.prepareRenderer(renderer, row, column)
-      val r = getModel.getValueAt(row, 0).asInstanceOf[Record]
-
-      if (isRowSelected(row)) {
-        c.setForeground(Colours.blend(r.severity.colour, Color.white, 150))
-      } else {
-        c.setForeground(r.severity.colour)
+  private def markRead(record: Record) {
+    record match {
+      case r: Readable if !r.read => {
+        r.read = true
       }
-      c
+      case _ =>
     }
+  }
+
+
+  // Actions
+
+  object Actions {
+    val markRead = new SimpleAction("Mark Read", markAllRead)
   }
 
 }

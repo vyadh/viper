@@ -1,36 +1,69 @@
 package viper.ui
 
 import javax.swing._
-import event.{CaretEvent, CaretListener, ListSelectionEvent, ListSelectionListener}
+import event._
 import java.awt.{Dimension, Component, CardLayout, Color}
 import ca.odell.glazedlists.{SortedList, FilterList, EventList}
 import ca.odell.glazedlists.swing.{EventSelectionModel, TableComparatorChooser, EventTableModel, EventListModel}
 import collection.mutable
 import ca.odell.glazedlists.gui.{AbstractTableComparatorChooser, TableFormat}
+import java.awt.event.ActionEvent
+import javax.imageio.ImageIO
 
 trait UIComponents {
 
   class FilterableSortableTable[T] extends JTable {
-    var installed: Option[TableComparatorChooser[T]] = None
+    private var installed: Option[TableComparatorChooser[T]] = None
+    private var selectionListeners = Seq[ListSelectionListener]()
+
+    def selected = getSelectionModel.asInstanceOf[EventSelectionModel[T]].getSelected
+
+    def addSelectionListener(listener: => Unit) {
+      if (installed.isDefined) throw new IllegalStateException("Add listeners before install")
+
+      selectionListeners = selectionListeners ++ Seq(new ListSelectionListener {
+        def valueChanged(e: ListSelectionEvent) {
+          if (!e.getValueIsAdjusting) listener
+        }
+      })
+    }
 
     def install(filtered: FilterList[T], sorted: SortedList[T], format: TableFormat[T]) {
       uninstall()
 
       setModel(new EventTableModel[T](filtered, format))
+      installSelectionListeners(filtered)
+      installSortedTable(sorted)
+    }
 
+    private def installSelectionListeners(eventList: EventList[T]) {
+      setSelectionModel(new EventSelectionModel[T](eventList))
+      selectionListeners.foreach(getSelectionModel.addListSelectionListener(_))
+    }
+
+    private def installSortedTable(eventList: SortedList[T]) {
       installed = Some(
-        TableComparatorChooser.install(this, sorted, AbstractTableComparatorChooser.SINGLE_COLUMN)
+        TableComparatorChooser.install(this, eventList, AbstractTableComparatorChooser.SINGLE_COLUMN)
       )
     }
 
     def uninstall() {
+      uninstallSelectionListeners()
+      uninstallSortedTable()
+    }
+
+    private def uninstallSelectionListeners() {
+      selectionListeners.foreach(getSelectionModel.removeListSelectionListener(_))
+    }
+
+    private def uninstallSortedTable() {
       installed.foreach(_.dispose())
       installed = None
     }
 
     def hideColumn(index: Int) {
       val cm = getColumnModel
-      cm.removeColumn(cm.getColumn(0))
+      cm.removeColumn(cm.getColumn(index))
     }
   }
 
@@ -42,6 +75,11 @@ trait UIComponents {
   class ToolBar extends JToolBar {
     setFloatable(false)
     setLayout(new BoxLayout(this, BoxLayout.X_AXIS)) // Fix for Nimbus bug 7085425
+
+    override def add(c: Component): Component = {
+      super.add(Box.createHorizontalStrut(5))
+      super.add(c)
+    }
 
     def addFiller() {
       add(Box.createHorizontalGlue())
@@ -108,31 +146,79 @@ trait UIComponents {
   }
 
   class SearchBox(onChange: String => Unit) extends JTextField {
-    var restoring = false
+
+    /** Record the last text so that we only trigger updates when it has changed. */
+    var last = getText
+    /** When to do on changes to text. */
+    val listener = new DocumentListener {
+      def insertUpdate(e: DocumentEvent) { update() }
+      def removeUpdate(e: DocumentEvent) { update() }
+      def changedUpdate(e: DocumentEvent) { }
+    }
 
     val dimension = new Dimension(200, 20)
     //    setSize(dimension)
     setPreferredSize(dimension)
     setMaximumSize(dimension)
     //    setMinimumSize(dimension)
+    getDocument.addDocumentListener(listener)
 
-    addCaretListener(new CaretListener {
-      def caretUpdate(e: CaretEvent) {
-        if (isEnabled && !restoring) {
-          onChange(getText)
+    /** Trigger updates, but only when needed. */
+    private def update() {
+      val text = getText
+      if (text != last) {
+        last = text
+        onChange(text)
+      }
+    }
+
+    /** Override so updates are not triggered when the search box is updated programmatically.
+      * Any filtering is only kicked off when user changes the text, otherwise we assume it is already filtered. */
+    override def setText(t: String) {
+      getDocument.removeDocumentListener(listener)
+      super.setText(t)
+      getDocument.addDocumentListener(listener)
+    }
+  }
+
+  class Slider extends JSlider(0, 1) {
+    setMajorTickSpacing(1)
+    setPaintTicks(true)
+    setPaintTrack(true)
+    setSnapToTicks(true)
+
+    addChangeListener(new ChangeListener {
+      def stateChanged(e: ChangeEvent) {
+        if (!getValueIsAdjusting) {
+          onChange(getValue)
         }
       }
     })
 
-    /** Restore search text, without triggering an update.
-      * Needs to be called on event thread. */
-    def restore(text: String) {
-      restoring = true
-      setText(text)
-      restoring = false
+    def onChange(value: Int) { }
+
+    def restore(value: Int) {
+      setValueIsAdjusting(false)
+      setValue(value)
+      setValueIsAdjusting(true)
     }
   }
 
   class EmptyBorder(size: Int) extends javax.swing.border.EmptyBorder(size, size, size, size)
+
+  class SimpleAction(name: String, action: => Unit) extends AbstractAction(name) {
+    putValue(Action.SHORT_DESCRIPTION, name)
+    putValue(Action.SMALL_ICON, icon(name, 16))
+    putValue(Action.LARGE_ICON_KEY, icon(name, 24))
+
+    def actionPerformed(e: ActionEvent) {
+      action
+    }
+  }
+
+  def icon(name: String, size: Int): Icon = {
+    val file = name.replace(" ", "").toLowerCase + '_' + size + ".png"
+    new ImageIcon(ImageIO.read(this.getClass.getResourceAsStream("images/" + file)))
+  }
 
 }

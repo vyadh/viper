@@ -6,7 +6,7 @@ import domain.{Record, Subscriber, Subscription}
 import store.log.xml.{JULXMLConsumer, JULXMLLogRecordPrototype}
 import ui.ViperFrame
 import java.util.Date
-import util.{PersistentFileReader}
+import util.PersistentFileReader
 
 object Viper {
 
@@ -50,17 +50,17 @@ object Viper {
     def stop() {}
 
     private lazy val testData = Array(
-      new LogRecord("1", "xp05", new Date(), Warning, "CTS Rates", "No rates"),
-      new LogRecord("2", "xp05", new Date(), Warning, "CTS Compliance", "Banks have crashed"),
-      new LogRecord("3", "xp03", new Date(), Info, "MRD", "MRD started successfully"),
-      new LogRecord("4", "xp12", new Date(), Info, "Grid Node", "Grid Node started successfully"),
-      new LogRecord("5", "xp01", new Date(), Severe, "Trades Rec", "Stuff Portia"),
-      new LogRecord("6", "xp01", new Date(), Severe, "Portia", "I'm dead"),
-      new LogRecord("7", "xp08", new Date(), Info, "Portia", "Test commit to BB"),
-      new LogRecord("8", "xp08", new Date(), Config, "MRD", "Some param"),
-      new LogRecord("9", "xp08", new Date(), Fine, "Whoo", "One fine day..."),
-      new LogRecord("10", "xp08", new Date(), Finer, "Whooo", "One fine day..."),
-      new LogRecord("11", "xp08", new Date(), Finest, "Whooo", "One fine day...")
+      new LogRecord("1", "xp05", new Date(), Warning, "CTS Rates", "No rates", false),
+      new LogRecord("2", "xp05", new Date(), Warning, "CTS Compliance", "Banks have crashed", true),
+      new LogRecord("3", "xp03", new Date(), Info, "MRD", "MRD started successfully", false),
+      new LogRecord("4", "xp12", new Date(), Info, "Grid Node", "Grid Node started successfully", false),
+      new LogRecord("5", "xp01", new Date(), Severe, "Trades Rec", "Stuff Portia", false),
+      new LogRecord("6", "xp01", new Date(), Severe, "Portia", "I'm dead", false),
+      new LogRecord("7", "xp08", new Date(), Info, "Portia", "Test commit to BB", true),
+      new LogRecord("8", "xp08", new Date(), Config, "MRD", "Some param", false),
+      new LogRecord("9", "xp08", new Date(), Fine, "Whoo", "One fine day...", false),
+      new LogRecord("10", "xp08", new Date(), Finer, "whooo", "One fine day...", false),
+      new LogRecord("11", "xp08", new Date(), Finest, "Whooo", "One fine day...", false)
     )
   }
 
@@ -75,7 +75,7 @@ object Viper {
   val rand = new java.util.Random
   def randomRecord: (Int => Record) = i => {
     val s = Severities.values(rand.nextInt(Severities.count))
-    new LogRecord("" + i, "source " + i, new Date(), s, "app " + i, "" + i)
+    new LogRecord("" + i, "source " + i, new Date(), s, "app " + i, "" + i, false)
   }
 
 }

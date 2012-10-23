@@ -5,7 +5,7 @@ import java.awt.event.{WindowEvent, WindowAdapter}
 import java.util.prefs.Preferences
 import viper.util.EQ
 
-trait UI extends UIComponents {
+trait UI {
 
   // Self-type: Must be mixed into class that is a JFrame
   this: JFrame =>
