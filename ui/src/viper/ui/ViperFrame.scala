@@ -7,12 +7,12 @@ import viper.domain._
 import collection.mutable
 import collection.JavaConversions.seqAsJavaList
 import viper.util.EQ
-import collection.JavaConversions.collectionAsScalaIterable
+import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 
 class ViperFrame(val name: String) extends JFrame(name) with UI with ViperComponents with RecordFiltering {
 
   /** The currently active subscriptions, as shown in the left-side list. */
-  val subscriberEventList = new BasicEventList[Subscriber]
+  val subscriberEventList = new BasicEventList[Subscribed]
   /** Objects related to a subscription, keyed by the subscriber object. */
   val viewObjectsBySubscriber = new mutable.HashMap[Subscriber, ViewObjects]
 
@@ -33,14 +33,14 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     main
   }
 
-  private def createMainComponents(subscriberEventList: EventList[Subscriber]): MainComponents = {
-    val subscriberList = new SubscriberList(subscriberEventList, changeTo)
+  private def createMainComponents(subscriberEventList: EventList[Subscribed]): MainComponents = {
+    val subscribedList = new SubscribedList(subscriberEventList, changeTo)
     val severitySlider = new SeveritySlider(updateCurrentSeverity) { setEnabled(false) }
     val searchBox = new SearchBox(search) { setEnabled(false) }
     val preview = new JTextArea { setEditable(false) }
     val table = new RecordTable(select(preview))
 
-    new MainComponents(subscriberList, severitySlider, searchBox, table, preview)
+    new MainComponents(subscribedList, severitySlider, searchBox, table, preview)
   }
 
   private def initLayout(components: MainComponents) {
@@ -80,8 +80,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
   // Actions
 
-  private def changeTo(subscriber: Subscriber) {
-    val view = viewObjectsBySubscriber(subscriber)
+  private def changeTo(subscribed: Subscribed) {
+    val view = viewObjectsBySubscriber(subscribed.subscriber)
 
     main.severitySlider.install(view.severitied, view.currentSeverityFilter)
     main.searchBox.setText(view.currentSearchFilter)
@@ -112,15 +112,27 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
       // Mark as read if just one selected
       if (selected.size == 1) {
         markRead(first)
-        selected.set(selected.indexOf(first), first) // Tell GL to repaint
+        fireUpdate(selected, first)
       }
     }
   }
 
   private def markAllRead() {
-    for (record <- main.table.selected) {
+    // Fast method: Just mark as read, a rely on deselection to repaint the list (list is not updated)
+//    for (record <- main.table.selected) {
+//      val record = main.table.selected.get(idx)
+//      markRead(record)
+//    }
+
+    // Slow method: Mark all read, and update the list
+    val iter = main.table.selected.listIterator
+    while (iter.hasNext) {
+      val record = iter.next()
       markRead(record)
+      iter.set(record)
     }
+
+    // Deselect
     main.table.getSelectionModel.clearSelection()
   }
 
@@ -139,26 +151,34 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   }
 
   def removeSubscriptions() {
-    val subscriptions = viewObjectsBySubscriber.values.map(_.subscription)
-    subscriptions.foreach(_.stop())
+    for (subscriber <- viewObjectsBySubscriber.keys) {
+      removeSubscription(subscriber)
+    }
   }
 
   def addSubscription(subscription: Subscription) {
     val vos = viewObjects(subscription)
     viewObjectsBySubscriber.put(subscription.subscriber, vos)
-    subscriberEventList.add(subscription.subscriber)
+    subscriberEventList.add(vos.subscribed)
+
+    vos.subscribed.unread.addPropertyChangeListener(new PropertyChangeListener {
+      def propertyChange(evt: PropertyChangeEvent) {
+        fireUpdate(subscriberEventList, vos.subscribed)
+      }
+    })
   }
 
   private def viewObjects(subscription: Subscription): ViewObjects = {
     val format = new RecordTableFormat(subscription.prototype)
 
     val data = subscribe(subscription)
-
     val severitied = thresholdList(data)
     val sorted = sortedList(severitied)
     val (filterer, filtered) = filteredList(subscription.prototype, sorted)
 
-    ViewObjects(subscription, format, data, severitied, sorted, filtered, filterer)
+    val subscribed = new Subscribed(subscription.subscriber, calculationUnread(data))
+
+    ViewObjects(subscription, format, data, severitied, sorted, filtered, filterer, subscribed)
   }
 
   private def subscribe(subscription: Subscription): EventList[Record] = {
@@ -171,7 +191,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
   // Util functions
 
-  private def activeSubscriber: Subscriber = main.subscriptionList.selected.get(0)
+  private def activeSubscriber: Subscriber = main.subscriptionList.selected.get(0).subscriber
 
   private def activeView: ViewObjects = {
     val opt = viewObjectsBySubscriber.get(activeSubscriber)

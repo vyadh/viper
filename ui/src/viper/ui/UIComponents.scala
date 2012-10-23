@@ -209,7 +209,7 @@ trait UIComponents {
   class SimpleAction(name: String, action: => Unit) extends AbstractAction(name) {
     putValue(Action.SHORT_DESCRIPTION, name)
     putValue(Action.SMALL_ICON, icon(name, 16))
-    putValue(Action.LARGE_ICON_KEY, icon(name, 24))
+    putValue(Action.LARGE_ICON_KEY, icon(name, 28))
 
     def actionPerformed(e: ActionEvent) {
       action
@@ -219,6 +219,11 @@ trait UIComponents {
   def icon(name: String, size: Int): Icon = {
     val file = name.replace(" ", "").toLowerCase + '_' + size + ".png"
     new ImageIcon(ImageIO.read(this.getClass.getResourceAsStream("images/" + file)))
+  }
+
+  /** Tell GL to repaint. */
+  def fireUpdate[T](list: EventList[T], item: T) {
+    list.set(list.indexOf(item), item)
   }
 
 }

@@ -1,19 +1,19 @@
 package viper.ui
 
 import ca.odell.glazedlists._
+import calculation.{Calculations, Calculation}
 import viper.domain._
 import javax.swing.{BoundedRangeModel, JLabel, JTextArea}
 import java.awt.Dimension
-import ca.odell.glazedlists.matchers.TextMatcherEditor
+import matchers.{Matcher, TextMatcherEditor}
 import ca.odell.glazedlists.swing.GlazedListsSwing
-import viper.domain.Subscriber
 import viper.domain.Subscription
 import java.util
 
 trait ViperComponents extends UIComponents {
 
   case class MainComponents(
-    subscriptionList: ListPanel[Subscriber],
+    subscriptionList: ListPanel[Subscribed],
     severitySlider: SeveritySlider,
     searchBox: SearchBox,
     table: RecordTable,
@@ -28,16 +28,17 @@ trait ViperComponents extends UIComponents {
     sorted: SortedList[Record],
     filtered: FilterList[Record],
     filterer: TextMatcherEditor[Record],
+    subscribed: Subscribed,
     var currentSearchFilter: String = "",
     var currentSeverityFilter: Severity = Severities.all
   ) {
     def eventLists = Seq(filtered, sorted, severitied, data)
   }
 
-  class SubscriberList(subscriberEventList: EventList[Subscriber], onSelection: Subscriber => Unit)
-    extends ListPanel[Subscriber](subscriberEventList, onSelection) {
+  class SubscribedList(subscribedEventList: EventList[Subscribed], onSelection: Subscribed => Unit)
+    extends ListPanel[Subscribed](subscribedEventList, onSelection) {
 
-    setCellRenderer(new SubscriberCellRenderer)
+    setCellRenderer(new SubscribedCellRenderer)
   }
 
   class RecordTable(onSelection: EventList[Record] => Unit) extends FilterableSortableTable[Record] {
@@ -104,6 +105,15 @@ trait ViperComponents extends UIComponents {
     val filteredEventList = new FilterList[Record](eventList, textMatcherEditor)
 
     (textMatcherEditor, filteredEventList)
+  }
+
+  def calculationUnread(list: EventList[Record]): Calculation[Integer] = {
+    Calculations.count(list, new Matcher[Record] {
+      def matches(item: Record) = item match {
+        case r: Readable => !r.read
+        case _ => true
+      }
+    })
   }
 
 }
