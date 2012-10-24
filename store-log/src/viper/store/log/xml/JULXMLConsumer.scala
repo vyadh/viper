@@ -1,11 +1,11 @@
 package viper.store.log.xml
 
 import java.io.Reader
-import viper.util.{XMLNode, XMLNodeReader}
+import viper.util.{StripPIFilterReader, XMLNode, XMLNodeReader}
 import collection.mutable
 import viper.domain._
 
-class JULXMLConsumer(reader: Reader, notify: Record => Unit) {
+class JULXMLConsumer(reader: => Reader, notify: Record => Unit) {
 
   /*
   <record>
@@ -36,7 +36,8 @@ class JULXMLConsumer(reader: Reader, notify: Record => Unit) {
   )
 
   def consume() {
-    val nodeReader = new XMLNodeReader(reader, interesting)
+    val filteredReader = new StripPIFilterReader(reader)
+    val nodeReader = new XMLNodeReader(filteredReader, interesting)
 
     val item = new mutable.HashMap[String, String]()
 

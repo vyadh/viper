@@ -2,6 +2,11 @@ package viper.util
 
 import java.io._
 
+/**
+ * Provides tail-like functionality reading from a file.
+ * Detects if the file has been overwritten, and if so, indicates the end of the file has been
+ * reached.
+ */
 class PersistentFileReader(path: String) extends Reader {
 
   val waitTime = 1000L
@@ -13,7 +18,7 @@ class PersistentFileReader(path: String) extends Reader {
   def read(cbuf: Array[Char], off: Int, len: Int): Int = {
     while (running) {
       if (newFile) {
-        newReader()
+        reader = newReader()
       }
 
       // Keep size up-to-date to detect renames/overwrites
@@ -42,7 +47,7 @@ class PersistentFileReader(path: String) extends Reader {
 
   private def newFile = reader == null || file.length() < size
 
-  private def newReader() {
+  private def newReader(): Reader = {
     try {
       closeReader()
     } catch {
@@ -51,8 +56,7 @@ class PersistentFileReader(path: String) extends Reader {
 
     while (true) {
       try {
-        reader = new FileReader(file)
-        return
+        return new FileReader(file)
       } catch {
         case _: FileNotFoundException => {
           // Wait a bit for file to be created again
@@ -60,6 +64,7 @@ class PersistentFileReader(path: String) extends Reader {
         }
       }
     }
+    throw new IllegalStateException
   }
 
 }
