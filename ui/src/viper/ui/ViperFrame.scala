@@ -109,31 +109,27 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
       val first = selected.get(0)
       preview.setText(first.body)
 
-      // Mark as read if just one selected
+      // Mark as isRead if just one selected
       if (selected.size == 1) {
-        markRead(first)
-        fireUpdate(selected, first)
+        markRead(first, activeView.subscribed)
+        main.subscriptionList.repaint()
       }
     }
   }
 
   private def markAllRead() {
-    // Fast method: Just mark as read, a rely on deselection to repaint the list (list is not updated)
-//    for (record <- main.table.selected) {
-//      val record = main.table.selected.get(idx)
-//      markRead(record)
-//    }
-
-    // Slow method: Mark all read, and update the list
-    val iter = main.table.selected.listIterator
-    while (iter.hasNext) {
-      val record = iter.next()
-      markRead(record)
-      iter.set(record)
+    // Mark as isRead, a rely on deselection to repaint the list
+    // This is much faster than updates through EventList
+    for (i <- 0 until main.table.selected.size()) {
+      val record = main.table.selected.get(i)
+      markRead(record, activeView.subscribed)
     }
 
-    // Deselect
+    // Deselect, which also covers repainting
     main.table.getSelectionModel.clearSelection()
+
+    // Repaint subscriber list with new counts
+    main.subscriptionList.repaint()
   }
 
 
@@ -160,31 +156,29 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val vos = viewObjects(subscription)
     viewObjectsBySubscriber.put(subscription.subscriber, vos)
     subscriberEventList.add(vos.subscribed)
-
-    vos.subscribed.unread.addPropertyChangeListener(new PropertyChangeListener {
-      def propertyChange(evt: PropertyChangeEvent) {
-        fireUpdate(subscriberEventList, vos.subscribed)
-      }
-    })
   }
 
   private def viewObjects(subscription: Subscription): ViewObjects = {
     val format = new RecordTableFormat(subscription.prototype)
 
-    val data = subscribe(subscription)
+    val subscribed = new Subscribed(subscription.subscriber)
+
+    val data = subscribe(subscription, subscribed)
     val severitied = thresholdList(data)
     val sorted = sortedList(severitied)
     val (filterer, filtered) = filteredList(subscription.prototype, sorted)
 
-    val subscribed = new Subscribed(subscription.subscriber, calculationUnread(data))
-
     ViewObjects(subscription, format, data, severitied, sorted, filtered, filterer, subscribed)
   }
 
-  private def subscribe(subscription: Subscription): EventList[Record] = {
+  private def subscribe(subscription: Subscription, subscribed: Subscribed): EventList[Record] = {
     val result = new BasicEventList[Record]()
     // Subscribe to events by adding them to the event list as they come in
-    subscription.deliver(records => EQ.later { result.addAll(records) })
+    subscription.deliver(records => EQ.later {
+      result.addAll(records)
+      subscribed.added(records)
+      main.subscriptionList.repaint()
+    })
     result
   }
 
@@ -201,10 +195,11 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     opt.get
   }
 
-  private def markRead(record: Record) {
+  private def markRead(record: Record, subscribed: Subscribed) {
     record match {
       case r: Readable if !r.read => {
         r.read = true
+        subscribed.read(record, false)
       }
       case _ =>
     }

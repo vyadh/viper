@@ -1,6 +1,6 @@
 package viper.domain.log
 
-import viper.domain.{Severity, Levelable, Record, Readable}
+import viper.domain.{Severity, Record, Readable}
 import java.util.Date
 
 /**
@@ -19,4 +19,4 @@ case class LogRecord(
       severity: Severity,
       application: String,
       body: String,
-      var read: Boolean) extends Record with Levelable with Readable
+      var read: Boolean) extends Record with Readable

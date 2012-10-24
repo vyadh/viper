@@ -2,23 +2,21 @@ package viper.ui
 
 import javax.swing.{ListCellRenderer, JLabel, JList, DefaultListCellRenderer}
 import java.awt.Component
+import viper.util.AlphaListCellRenderer
 
-class SubscribedCellRenderer extends ListCellRenderer[Subscribed] {
+class SubscribedCellRenderer extends AlphaListCellRenderer[Subscribed] {
 
-  val underlying = new DefaultListCellRenderer
-
-  def getListCellRendererComponent(list: JList[_ <: Subscribed], value: Subscribed, index: Int,
+  override def getListCellRendererComponent(list: JList[_ <: Subscribed], value: Subscribed, index: Int,
         isSelected: Boolean, cellHasFocus: Boolean): Component = {
 
-    val result = underlying
-          .getListCellRendererComponent(list, value.asInstanceOf[Any], index, isSelected, cellHasFocus)
-          .asInstanceOf[JLabel]
+    super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
 
-    val unreadCount = value.unread.getValue
-    val unreadText = if (unreadCount == 0) "" else " (" + unreadCount + ')'
-    result.setText(value.subscriber.name + unreadText)
+    setForeground(value.severity.colour)
 
-    result
+    val unreadText = if (value.unread == 0) "" else " (" + value.unread + ')'
+    setText(value.subscriber.name + unreadText)
+
+    this
   }
 
 }

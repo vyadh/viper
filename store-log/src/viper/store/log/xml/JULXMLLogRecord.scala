@@ -1,6 +1,6 @@
 package viper.store.log.xml
 
-import viper.domain.{Severity, Record, Levelable}
+import viper.domain.{Severity, Record}
 import java.util.Date
 
 /**
@@ -12,7 +12,7 @@ case class JULXMLLogRecord(
       sequence: Integer,
       level: String,
       severity: Severity,
-      message: String) extends Record with Levelable {
+      message: String) extends Record {
 
   def datetime = new Date(timestamp)
   def body = message
