@@ -7,8 +7,7 @@ class AlphaListCellRenderer[T] extends AlphaCellRenderer with ListCellRenderer[T
 
   val selectionBackground = UIManager.getColor("List[Selected].textBackground")
 
-  setBackground(UIManager.getColor("List.background"))
-//  setBackground(Color.white) todo why do I need to make this white?
+  setBackground(UIManager.getColor("List.background").brighter)
 
 
   def getListCellRendererComponent(
