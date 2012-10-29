@@ -18,7 +18,11 @@ class PersistentFileReader(path: String) extends Reader {
   def read(cbuf: Array[Char], off: Int, len: Int): Int = {
     while (running) {
       if (newFile) {
-        reader = newReader()
+        try {
+          reader = newReader()
+        } catch {
+          case _: ReaderClosedSignal => return -1
+        }
       }
 
       // Keep size up-to-date to detect renames/overwrites
@@ -54,7 +58,7 @@ class PersistentFileReader(path: String) extends Reader {
       case _: IOException =>
     }
 
-    while (true) {
+    while (running) {
       try {
         return new FileReader(file)
       } catch {
@@ -64,7 +68,9 @@ class PersistentFileReader(path: String) extends Reader {
         }
       }
     }
-    throw new IllegalStateException
+    throw new ReaderClosedSignal
   }
+
+  class ReaderClosedSignal extends Exception
 
 }
