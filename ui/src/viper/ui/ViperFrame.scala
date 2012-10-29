@@ -52,6 +52,10 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val tableWithPreview = new VerticalSplitPane(new ScrollPane(components.table), components.preview)
     val main = new HorizontalSplitPane(subscriptionScroll, tableWithPreview)
 
+    // Prefs
+    registerPrefs("table-preview", tableWithPreview)
+    registerPrefs("main", main)
+
     // Popup table menu
     components.table.setComponentPopupMenu(new JPopupMenu {
       add(Actions.markRead)
