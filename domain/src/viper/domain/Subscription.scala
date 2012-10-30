@@ -5,6 +5,7 @@ abstract case class Subscription(
       prototype: RecordPrototype) {
 
   def ref = subscriber.ref
+  def name = subscriber.name
 
   /**
    * Adds a new delivery point for messages.

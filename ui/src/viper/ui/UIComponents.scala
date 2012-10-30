@@ -90,9 +90,9 @@ trait UIComponents {
         extends JList[T](new EventListModel[T](eventList).asInstanceOf[ListModel[T]]) {
 
     private val selectionModel = new EventSelectionModel(eventList)
-    setSelectionModel(selectionModel)
-    val selected = selectionModel.getSelected
+    def selected = selectionModel.getSelected
 
+    setSelectionModel(selectionModel)
     setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
 
     addListSelectionListener(new ListSelectionListener {
@@ -103,7 +103,7 @@ trait UIComponents {
     })
   }
 
-  class CardPanel extends JPanel(new CardLayout) {
+  class CardPanel extends JPanel(new CardLayout) { //todo no longer needed
     val cards = getLayout.asInstanceOf[CardLayout]
     /** Cards in layout not accessible, so keep mapping */
     val mapping = new mutable.HashMap[String, java.awt.Component]
@@ -224,6 +224,20 @@ trait UIComponents {
   /** Tell GL to repaint. */
   def fireUpdate[T](list: EventList[T], item: T) {
     list.set(list.indexOf(item), item)
+  }
+
+  class TableColumnWidthListener(table: JTable, onChange: => Unit) extends TableColumnModelListener {
+    def columnMarginChanged(e: ChangeEvent) {
+      // Only react to user-driven column changes
+      if (table.getTableHeader.getResizingColumn != null) {
+        onChange
+      }
+    }
+
+    def columnAdded(e: TableColumnModelEvent) {}
+    def columnRemoved(e: TableColumnModelEvent) {}
+    def columnMoved(e: TableColumnModelEvent) {}
+    def columnSelectionChanged(e: ListSelectionEvent) {}
   }
 
 }

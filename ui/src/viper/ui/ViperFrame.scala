@@ -7,7 +7,6 @@ import viper.domain._
 import collection.mutable
 import collection.JavaConversions.seqAsJavaList
 import viper.util.EQ
-import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 
 class ViperFrame(val name: String) extends JFrame(name) with UI with ViperComponents with RecordFiltering {
 
@@ -38,7 +37,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val severitySlider = new SeveritySlider(updateCurrentSeverity) { setEnabled(false) }
     val searchBox = new SearchBox(search) { setEnabled(false) }
     val preview = new JTextArea { setEditable(false) }
-    val table = new RecordTable(select(preview))
+    val table = new RecordTable(select(preview), tableColumnWidthChanged)
 
     new MainComponents(subscribedList, severitySlider, searchBox, table, preview)
   }
@@ -84,6 +83,10 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
   // Actions
 
+  private def tableColumnWidthChanged(table: JTable) {
+    storeColumnWidths(activeView.subscription.name, table)
+  }
+
   private def changeTo(subscribed: Subscribed) {
     val view = viewObjectsBySubscriber(subscribed.subscriber)
 
@@ -91,10 +94,15 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     main.searchBox.setText(view.currentSearchFilter)
     main.table.install(view.filtered, view.sorted, view.format)
 
+    // Now we know a subscription has been selected, we can enable a few things
     main.severitySlider.setEnabled(true)
     main.searchBox.setEnabled(true)
 
-    main.table.hideColumn(0) // First column is always record, so don't display it
+    // First column is always the Record object, so don't display it
+    main.table.hideColumn(0)
+
+    // Restore previous widths (if any exist)
+    restoreColumnWidths(view.subscription.name, main.table)
   }
 
   private def search(expression: String) {

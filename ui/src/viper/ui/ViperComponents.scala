@@ -3,7 +3,7 @@ package viper.ui
 import ca.odell.glazedlists._
 import calculation.{Calculations, Calculation}
 import viper.domain._
-import javax.swing.{BoundedRangeModel, JLabel, JTextArea}
+import javax.swing.{JTable, BoundedRangeModel, JLabel, JTextArea}
 import java.awt.Dimension
 import matchers.{Matcher, TextMatcherEditor}
 import ca.odell.glazedlists.swing.GlazedListsSwing
@@ -41,9 +41,12 @@ trait ViperComponents extends UIComponents {
     setCellRenderer(new SubscribedCellRenderer)
   }
 
-  class RecordTable(onSelection: EventList[Record] => Unit) extends FilterableSortableTable[Record] {
+  class RecordTable(onSelection: EventList[Record] => Unit, onColumnWidthChange: JTable => Unit)
+        extends FilterableSortableTable[Record] {
+
     setDefaultRenderer(classOf[Object], new RecordTableCellRender)
     addSelectionListener { onSelection(selected) }
+    getColumnModel.addColumnModelListener(new TableColumnWidthListener(this, onColumnWidthChange(RecordTable.this)))
 
     // Line border between rows
     setIntercellSpacing(new Dimension(0, 1))
