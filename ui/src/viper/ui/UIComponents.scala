@@ -1,5 +1,6 @@
 package viper.ui
 
+import images.Images
 import javax.swing._
 import javax.swing.event._
 import java.awt._
@@ -227,7 +228,8 @@ trait UIComponents {
 
   def icon(name: String, size: Int): Icon = {
     val file = name.replace(" ", "").toLowerCase + '_' + size + ".png"
-    new ImageIcon(ImageIO.read(this.getClass.getResourceAsStream("images/" + file)))
+    val stream = classOf[Images].getResourceAsStream(file)
+    if (stream == null) new ImageIcon else new ImageIcon(ImageIO.read(stream))
   }
 
   /** Tell GL to repaint. */
