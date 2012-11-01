@@ -3,7 +3,7 @@ package viper.domain
 import java.awt.Color
 
 sealed class Severity(val ordinal: Int, val colour: Color) extends Comparable[Severity] {
-  val name = getClass.getSimpleName
+  val name = getClass.getSimpleName.substring(0, getClass.getSimpleName.size-1)
   override def toString = name
   def compareTo(s: Severity) = ordinal - s.ordinal
 }
