@@ -9,6 +9,7 @@ import collection.mutable
 import ca.odell.glazedlists.gui.{AbstractTableComparatorChooser, TableFormat}
 import java.awt.event.ActionEvent
 import javax.imageio.ImageIO
+import text.DefaultCaret
 
 trait UIComponents {
 
@@ -202,6 +203,13 @@ trait UIComponents {
       setValue(value)
       setValueIsAdjusting(true)
     }
+  }
+
+  class TextArea extends JTextArea {
+    // Don't scroll to bottom/right of area on large amounts of text
+    getCaret.asInstanceOf[DefaultCaret].setUpdatePolicy(DefaultCaret.NEVER_UPDATE)
+
+    setLineWrap(true)
   }
 
   class EmptyBorder(size: Int) extends javax.swing.border.EmptyBorder(size, size, size, size)

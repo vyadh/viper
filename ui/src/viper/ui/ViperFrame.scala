@@ -36,7 +36,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val subscribedList = new SubscribedList(subscriberEventList, changeTo)
     val severitySlider = new SeveritySlider(updateCurrentSeverity) { setEnabled(false) }
     val searchBox = new SearchBox(search) { setEnabled(false) }
-    val preview = new JTextArea { setEditable(false) }
+    val preview = new TextArea { setEditable(false) }
     val table = new RecordTable(select(preview), tableColumnWidthChanged)
 
     new MainComponents(subscribedList, severitySlider, searchBox, table, preview)
@@ -48,7 +48,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     // Components
     val toolBar = createToolBar(components.severitySlider, components.searchBox)
     val subscriptionScroll = new ScrollPane(components.subscriptionList)
-    val tableWithPreview = new VerticalSplitPane(new ScrollPane(components.table), components.preview)
+    val tableWithPreview = new VerticalSplitPane(new ScrollPane(components.table), new ScrollPane(components.preview))
     val main = new HorizontalSplitPane(subscriptionScroll, tableWithPreview)
 
     // Prefs
