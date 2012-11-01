@@ -1,8 +1,8 @@
 package viper.ui
 
 import javax.swing._
-import event._
-import java.awt.{Dimension, Component, CardLayout, Color}
+import javax.swing.event._
+import java.awt._
 import ca.odell.glazedlists.{SortedList, FilterList, EventList}
 import ca.odell.glazedlists.swing.{EventSelectionModel, TableComparatorChooser, EventTableModel, EventListModel}
 import collection.mutable
@@ -10,6 +10,7 @@ import ca.odell.glazedlists.gui.{AbstractTableComparatorChooser, TableFormat}
 import java.awt.event.ActionEvent
 import javax.imageio.ImageIO
 import text.DefaultCaret
+import scala.Some
 
 trait UIComponents {
 
