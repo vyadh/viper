@@ -4,11 +4,13 @@ import javax.swing. JTable
 import java.awt._
 import viper.domain.{Record, Readable}
 import viper.util.AlphaTableCellRenderer
+import java.text.SimpleDateFormat
 
 class RecordTableCellRender extends AlphaTableCellRenderer {
 
-  val fontNorm = getFont
-  val fontBold = fontNorm.deriveFont(Font.BOLD)
+  private val fontNorm = getFont
+  private val fontBold = fontNorm.deriveFont(Font.BOLD)
+  private val dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
   override def getTableCellRendererComponent(
         table: JTable,
@@ -34,6 +36,10 @@ class RecordTableCellRender extends AlphaTableCellRenderer {
       case None =>
         setFont(fontNorm)
         setBackground(ColorScheme.recordUnread)
+    }
+
+    if (value.isInstanceOf[java.util.Date]) {
+      setText(dateFormat.format(value))
     }
 
     this
