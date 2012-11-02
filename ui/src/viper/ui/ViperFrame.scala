@@ -103,6 +103,9 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
     // Restore previous widths (if any exist)
     restoreColumnWidths(view.subscription.name, main.table)
+
+    // Any current preview doesn't make much sense now
+    main.preview.setText("")
   }
 
   private def search(expression: String) {

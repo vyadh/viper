@@ -132,6 +132,7 @@ trait UIComponents {
 
     setTopComponent(top)
     setBottomComponent(bottom)
+    setResizeWeight(1.0)
   }
 
   case class HorizontalSplitPane[L <: JComponent, R <: JComponent](left: L, right: R)
@@ -139,6 +140,7 @@ trait UIComponents {
 
     setLeftComponent(left)
     setRightComponent(right)
+    setResizeWeight(0.0)
   }
 
   trait SplitPane {
