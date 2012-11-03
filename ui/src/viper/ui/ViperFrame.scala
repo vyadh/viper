@@ -6,6 +6,7 @@ import ca.odell.glazedlists._
 import viper.domain._
 import collection.mutable
 import collection.JavaConversions.seqAsJavaList
+import collection.JavaConversions.collectionAsScalaIterable
 import viper.util.EQ
 
 class ViperFrame(val name: String) extends JFrame(name) with UI with ViperComponents with RecordFiltering {
@@ -57,7 +58,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
     // Popup table menu
     components.table.setComponentPopupMenu(new JPopupMenu {
-      add(Actions.markRead)
+      add(Actions.markReadUnread)
     })
 
     // Borders
@@ -71,7 +72,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   }
 
   private def createToolBar(severityLevel: SeveritySlider, searchBox: SearchBox) = new ToolBar {
-    add(Actions.markRead)
+    add(Actions.markReadUnread)
     addFiller()
     add(severityLevel.label)
     add(severityLevel)
@@ -132,12 +133,18 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     }
   }
 
-  private def markAllRead() {
-    // Mark as isRead, a rely on deselection to repaint the list
+  private def markAllReadUnread() {
+    // Mark as read unless they are all read, in which case mark unread
+    val atLeastOneUnread = main.table.selected.exists(_ match {
+      case r: Readable => !r.read
+      case _ => false
+    })
+    val newReadStatus = atLeastOneUnread
+
+    // Mark as new status, and rely on deselection to repaint the list
     // This is much faster than updates through EventList
-    for (i <- 0 until main.table.selected.size()) {
-      val record = main.table.selected.get(i)
-      markRead(record, activeView.subscribed)
+    for (record <- main.table.selected) {
+      markReadUnread(record, activeView.subscribed, newReadStatus)
     }
 
     // Deselect, which also covers repainting
@@ -211,10 +218,16 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   }
 
   private def markRead(record: Record, subscribed: Subscribed) {
+    markReadUnread(record, subscribed, newRead=true)
+  }
+
+  private def markReadUnread(record: Record, subscribed: Subscribed, newRead: Boolean) {
     record match {
-      case r: Readable if !r.read => {
-        r.read = true
-        subscribed.read(record, false)
+      // Set the new status and forward on if it has changed
+      case r: Readable if (newRead ^ r.read) => {
+        r.read = newRead
+        if (newRead) subscribed.read(record, !r.read)
+        else subscribed.unread(record, !r.read)
       }
       case _ =>
     }
@@ -224,7 +237,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   // Actions
 
   object Actions {
-    val markRead = new SimpleAction("Mark Read", markAllRead)
+    val markReadUnread = new SimpleAction("Mark Read/Unread", markAllReadUnread)
   }
 
 }
