@@ -58,7 +58,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
     // Popup table menu
     components.table.setComponentPopupMenu(new JPopupMenu {
-      add(Actions.markReadUnread)
+      add(Actions.markRead)
+      add(Actions.markUnread)
     })
 
     // Borders
@@ -72,7 +73,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   }
 
   private def createToolBar(severityLevel: SeveritySlider, searchBox: SearchBox) = new ToolBar {
-    add(Actions.markReadUnread)
+    add(Actions.markRead)
+    add(Actions.markUnread)
     addFiller()
     add(severityLevel.label)
     add(severityLevel)
@@ -133,18 +135,11 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     }
   }
 
-  private def markAllReadUnread() {
-    // Mark as read unless they are all read, in which case mark unread
-    val atLeastOneUnread = main.table.selected.exists(_ match {
-      case r: Readable => !r.read
-      case _ => false
-    })
-    val newReadStatus = atLeastOneUnread
-
+  private def markAllRead(read: Boolean = true)() {
     // Mark as new status, and rely on deselection to repaint the list
     // This is much faster than updates through EventList
     for (record <- main.table.selected) {
-      markReadUnread(record, activeView.subscribed, newReadStatus)
+      markReadUnread(record, activeView.subscribed, read)
     }
 
     // Deselect, which also covers repainting
@@ -237,7 +232,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   // Actions
 
   object Actions {
-    val markReadUnread = new SimpleAction("Mark Read/Unread", markAllReadUnread)
+    val markRead = new SimpleAction("Mark Read", markAllRead(true))
+    val markUnread = new SimpleAction("Mark Unread", markAllRead(false))
   }
 
 }
