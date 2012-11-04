@@ -1,4 +1,4 @@
-package viper.store.log.xml
+package viper.source.log.xml
 
 import viper.domain.{Record, RecordField, RecordPrototype}
 

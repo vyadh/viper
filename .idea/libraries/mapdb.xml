@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="mapdb">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jdbm-4.000-20121102.180001-3.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/jdbm-4.000-20121102.180001-3-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

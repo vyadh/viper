@@ -1,4 +1,4 @@
-package viper.store.log.xml
+package viper.source.log.xml
 
 import viper.domain.{Severity, Record}
 import java.util.Date

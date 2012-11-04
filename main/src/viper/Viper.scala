@@ -3,7 +3,7 @@ package viper
 import domain._
 import domain.log._
 import domain.{Record, Subscriber, Subscription}
-import store.log.xml.{JULXMLConsumer, JULXMLLogRecordPrototype}
+import source.log.xml.{JULXMLConsumer, JULXMLLogRecordPrototype}
 import ui.ViperFrame
 import java.util.Date
 import util.PersistentFileReader
@@ -27,7 +27,7 @@ object Viper {
   val path = "./" + name
   def julSubscriber = new Subscriber(name, path)
   def jul = new Subscription(julSubscriber, JULXMLLogRecordPrototype) {
-    // todo needs to be done via Store
+    // todo needs to be done via Source
     val pr = new PersistentFileReader(path)
     var c: JULXMLConsumer = null
     val thread = new Thread(new Runnable() {
