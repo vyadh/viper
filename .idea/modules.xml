@@ -8,9 +8,9 @@
       <module fileurl="file://$PROJECT_DIR$/main/main.iml" filepath="$PROJECT_DIR$/main/main.iml" />
       <module fileurl="file://$PROJECT_DIR$/source/source.iml" filepath="$PROJECT_DIR$/source/source.iml" />
       <module fileurl="file://$PROJECT_DIR$/source-log/source-log.iml" filepath="$PROJECT_DIR$/source-log/source-log.iml" />
+      <module fileurl="file://$PROJECT_DIR$/store/store.iml" filepath="$PROJECT_DIR$/store/store.iml" />
+      <module fileurl="file://$PROJECT_DIR$/store-mapdb/store-mapdb.iml" filepath="$PROJECT_DIR$/store-mapdb/store-mapdb.iml" />
       <module fileurl="file://$PROJECT_DIR$/ui/ui.iml" filepath="$PROJECT_DIR$/ui/ui.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ui-log/ui-log.iml" filepath="$PROJECT_DIR$/ui-log/ui-log.iml" />
-      <module fileurl="file://$PROJECT_DIR$/ui-message/ui-message.iml" filepath="$PROJECT_DIR$/ui-message/ui-message.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/util.iml" filepath="$PROJECT_DIR$/util/util.iml" />
       <module fileurl="file://$PROJECT_DIR$/viper.iml" filepath="$PROJECT_DIR$/viper.iml" />
     </modules>

@@ -17,7 +17,6 @@
     <orderEntry type="module" module-name="viper" />
     <orderEntry type="module" module-name="source" exported="" />
     <orderEntry type="module" module-name="util" />
-    <orderEntry type="library" name="mapdb" level="project" />
   </component>
 </module>
 

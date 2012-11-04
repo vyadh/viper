@@ -15,12 +15,9 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="viper" />
-    <orderEntry type="module" module-name="store" />
-    <orderEntry type="module" module-name="store-mapdb" />
-    <orderEntry type="module" module-name="domain-log" />
-    <orderEntry type="module" module-name="domain-message" />
-    <orderEntry type="module" module-name="source-log" />
-    <orderEntry type="module" module-name="util" />
+    <orderEntry type="module" module-name="ui" exported="" />
+    <orderEntry type="module" module-name="store" exported="" />
+    <orderEntry type="library" name="mapdb" level="project" />
   </component>
 </module>
 
