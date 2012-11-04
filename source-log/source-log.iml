@@ -17,6 +17,7 @@
     <orderEntry type="module" module-name="viper" />
     <orderEntry type="module" module-name="source" exported="" />
     <orderEntry type="module" module-name="util" />
+    <orderEntry type="module" module-name="domain-log" />
   </component>
 </module>
 
