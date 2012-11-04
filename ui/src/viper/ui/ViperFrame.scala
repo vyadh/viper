@@ -60,6 +60,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     components.table.setComponentPopupMenu(new JPopupMenu {
       add(Actions.markRead)
       add(Actions.markUnread)
+      add(Actions.delete)
     })
 
     // Borders
@@ -75,6 +76,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   private def createToolBar(severityLevel: SeveritySlider, searchBox: SearchBox) = new ToolBar {
     add(Actions.markRead)
     add(Actions.markUnread)
+    add(Actions.delete)
     addFiller()
     add(severityLevel.label)
     add(severityLevel)
@@ -131,21 +133,36 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
       if (selected.size == 1) {
         markRead(first, activeView.subscribed)
         main.subscriptionList.repaint()
+
+        // Repaint row, otherwise it doesn't look like it has been marked read
+        selected.set(0, selected.get(0))
       }
     }
   }
 
-  private def markAllRead(read: Boolean = true)() {
+  private def markAllRead(read: Boolean = true)() { // Curry for use by action
     // Mark as new status, and rely on deselection to repaint the list
     // This is much faster than updates through EventList
     for (record <- main.table.selected) {
       markReadUnread(record, activeView.subscribed, read)
     }
 
-    // Deselect, which also covers repainting
+    // Deselect, which also covers repainting all the rows
     main.table.getSelectionModel.clearSelection()
 
     // Repaint subscriber list with new counts
+    main.subscriptionList.repaint()
+  }
+
+  private def deleteItem() {
+    // Need to mark items as read to ensure subscription read counts updated
+    for (record <- main.table.selected) {
+      markReadUnread(record, activeView.subscribed, true)
+    }
+
+    main.table.deleteSelected(activeView.filtered, activeView.data)
+
+    // Repaint subscriber list with new unread counts
     main.subscriptionList.repaint()
   }
 
@@ -234,6 +251,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   object Actions {
     val markRead = new SimpleAction("Mark Read", markAllRead(true))
     val markUnread = new SimpleAction("Mark Unread", markAllRead(false))
+    val delete = new SimpleAction("Delete", deleteItem)
   }
 
 }

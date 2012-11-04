@@ -11,9 +11,12 @@ import util.PersistentFileReader
 object Viper {
 
   def main(args: Array[String]) {
+    val start = System.currentTimeMillis
     val frame = new ViperFrame("Viper")
 
     frame.setVisible()
+    val end = System.currentTimeMillis
+    println("Startup: " + (end-start))
 
     frame.addSubscription(fake)
     frame.addSubscription(random)

@@ -70,6 +70,35 @@ trait UIComponents {
       val cm = getColumnModel
       cm.removeColumn(cm.getColumn(index))
     }
+
+    def deleteSelected(view: EventList[T], underlying: EventList[T]) {
+      val start = System.currentTimeMillis()
+      val selected = this.selected
+
+      // If we are clearing the whole list
+      if (selected.isEmpty || selected.size() == view.size()) {
+        view.clear()
+      }
+      // 2x faster way of updating when the selection is contiguous
+      else if (isSelectionContiguous()) {
+        val from = view.indexOf(selected.get(0))
+        val to = view.indexOf(selected.get(selected.size()-1))
+        view.subList(from, to).clear()
+      }
+      // Last resort (slow!)
+      else {
+        underlying.removeAll(selected)
+      }
+
+      // todo remove timings
+      val end = System.currentTimeMillis()
+      println(end-start)
+    }
+
+    private def isSelectionContiguous(): Boolean = {
+      //todo
+      false
+    }
   }
 
   class ScrollPane(c: JComponent) extends JScrollPane(c) {
@@ -222,7 +251,7 @@ trait UIComponents {
 
   class SimpleAction(name: String, action: => Unit) extends AbstractAction(name) {
     putValue(Action.SHORT_DESCRIPTION, name)
-    putValue(Action.SMALL_ICON, iconSVG(name, 16))
+    putValue(Action.SMALL_ICON, iconSVG(name, 18))
     putValue(Action.LARGE_ICON_KEY, iconSVG(name, 28))
 
     def actionPerformed(e: ActionEvent) {
