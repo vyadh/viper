@@ -16,6 +16,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="scala-library" level="application" />
+    <orderEntry type="library" name="svgSalamander" level="project" />
   </component>
 </module>
 

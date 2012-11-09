@@ -9,11 +9,9 @@ import ca.odell.glazedlists.swing.{EventSelectionModel, TableComparatorChooser, 
 import collection.mutable
 import ca.odell.glazedlists.gui.{AbstractTableComparatorChooser, TableFormat}
 import java.awt.event.ActionEvent
-import javax.imageio.ImageIO
 import text.DefaultCaret
 import scala.Some
-import com.kitfox.svg.SVGCache
-import com.kitfox.svg.app.beans.SVGIcon
+import viper.util.IconCache
 
 trait UIComponents {
 
@@ -259,24 +257,11 @@ trait UIComponents {
     }
   }
 
-  def icon(name: String, size: Int): Icon = {
-    val file = name.replace(" ", "").toLowerCase + '_' + size + ".png"
-    val stream = classOf[Images].getResourceAsStream(file)
-    if (stream == null) new ImageIcon else new ImageIcon(ImageIO.read(stream))
-  }
-
   def iconSVG(name: String, size: Int): Icon = {
-    val file = name.replace(" ", "").toLowerCase + ".svg"
+    val key = name.replace(" ", "").toLowerCase
+    val file = key + ".svg"
     val stream = classOf[Images].getResourceAsStream(file)
-    val svgURI = SVGCache.getSVGUniverse.loadSVG(stream, name)
-    val icon = new SVGIcon
-    icon.setSvgURI(svgURI)
-    icon.setScaleToFit(true)
-    icon.setAntiAlias(true)
-    val height = size
-    val width = ((size.toDouble / icon.getIconHeight) * icon.getIconWidth).toInt
-    icon.setPreferredSize(new Dimension(width, height))
-    icon
+    IconCache.load(key, size, stream)
   }
 
   /** Tell GL to repaint. */

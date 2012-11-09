@@ -16,7 +16,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="viper" />
     <orderEntry type="library" exported="" name="glazedlists-1.8.0" level="project" />
-    <orderEntry type="library" name="svgSalamander" level="project" />
   </component>
 </module>
 
