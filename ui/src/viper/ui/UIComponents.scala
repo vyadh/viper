@@ -108,7 +108,7 @@ trait UIComponents {
 
   class ToolBar extends JToolBar {
     setFloatable(false)
-    setLayout(new BoxLayout(this, BoxLayout.X_AXIS)) // Fix for Nimbus bug 7085425
+    setLayout(new BoxLayout(this, BoxLayout.X_AXIS)) // Fix for Nimbus bug 7171632
 
     override def add(c: Component): Component = {
       super.add(Box.createHorizontalStrut(5))
