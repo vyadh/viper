@@ -7,6 +7,7 @@ import source.log.random.RandomLogSource
 import source.log.xml.JULXMLLogSource
 import source.{CompositeSource, Source}
 import ui.ViperFrame
+import java.io.File
 
 object Viper {
 
@@ -16,7 +17,7 @@ object Viper {
       val frame = initUI()
       val sources = allSources
       loadSubscribers(sources, frame)
-      loadFiles(args)
+      loadFiles(sources, args, frame)
       startServer(sources, frame)
     }
   }
@@ -59,8 +60,13 @@ object Viper {
     }
   }
 
-  def loadFiles(files: Array[String]) {
-    //todo
+  def loadFiles(source: Source, files: Array[String], frame: ViperFrame) {
+    for (path <- files) {
+      val name = new File(path).getName
+      val subscriber = new Subscriber("jul-xml", name, path)
+      val subscription = source.subscribe(subscriber)
+      frame.addSubscription(subscription)
+    }
   }
 
   def configFromFile(file: String): SubscriberConfig = {
@@ -68,7 +74,6 @@ object Viper {
     // todo Hard code some development subscribers for now
     config.add(new Subscriber("fake", "Fake", ""))
     config.add(new Subscriber("random", "Random", ""))
-    config.add(new Subscriber("jul-xml", "mrd.log", "K:\\mrd\\logs\\mrd_0.log"))
     config
   }
 
