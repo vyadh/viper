@@ -31,6 +31,15 @@ trait UIComponents {
       })
     }
 
+    def sort(name: String, reverse: Boolean) {
+      for {
+        comparatorChooser <- installed
+        index <- getColumnIndex(name)
+      } {
+        comparatorChooser.appendComparator(index, 0, reverse)
+      }
+    }
+
     def install(filtered: FilterList[T], sorted: SortedList[T], format: TableFormat[T]) {
       uninstall()
 
@@ -96,6 +105,15 @@ trait UIComponents {
     private def isSelectionContiguous(): Boolean = {
       //todo
       false
+    }
+
+    private def getColumnIndex(name: String): Option[Int] = {
+      for (i <- 0 until getColumnCount) {
+        if (getColumnName(i) == name) {
+          return Some(i)
+        }
+      }
+      None
     }
   }
 
