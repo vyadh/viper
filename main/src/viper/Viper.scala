@@ -32,9 +32,11 @@ object Viper {
 
   def startServer(source: Source, frame: ViperFrame) {
     def addSubscriber(subscriber: Subscriber) {
-      val subcription = source.subscribe(subscriber)
-      frame.addSubscription(subcription)
-      frame.toFront()
+      if (!frame.hasSubscriber(subscriber)) {
+        val subscription = source.subscribe(subscriber)
+        frame.addSubscription(subscription)
+        frame.toFront()
+      }
     }
 
     val server = new ViperServer

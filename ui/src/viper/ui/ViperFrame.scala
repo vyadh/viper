@@ -173,6 +173,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
   // Add/remove subscription
 
+  def hasSubscriber(subscriber: Subscriber) = viewObjectsBySubscriber.contains(subscriber)
+
   def removeSubscription(subscriber: Subscriber) {
     val view = viewObjectsBySubscriber.remove(subscriber)
     for (v <- view) {
