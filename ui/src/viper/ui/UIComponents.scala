@@ -140,7 +140,13 @@ trait UIComponents {
         extends JList[T](new EventListModel[T](eventList).asInstanceOf[ListModel[T]]) {
 
     private val selectionModel = new EventSelectionModel(eventList)
+
     def selected = selectionModel.getSelected
+
+    def selected_=(t: T) {
+      val index = eventList.indexOf(t)
+      selectionModel.setSelectionInterval(index, index)
+    }
 
     setSelectionModel(selectionModel)
     setSelectionMode(ListSelectionModel.SINGLE_SELECTION)

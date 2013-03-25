@@ -37,6 +37,8 @@ object Viper {
         frame.addSubscription(subscription)
         frame.toFront()
       }
+      frame.toFront()
+      frame.focusOn(subscriber)
     }
 
     val server = new ViperServer

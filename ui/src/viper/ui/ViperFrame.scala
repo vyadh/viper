@@ -34,7 +34,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   }
 
   private def createMainComponents(subscriberEventList: EventList[Subscribed]): MainComponents = {
-    val subscribedList = new SubscribedList(subscriberEventList, changeTo)
+    val subscribedList = new SubscribedList(subscriberEventList, s => changeTo(s.subscriber))
     val severitySlider = new SeveritySlider(updateCurrentSeverity) { setEnabled(false) }
     val searchBox = new SearchBox(search) { setEnabled(false) }
     val preview = new TextArea { setEditable(false) }
@@ -92,8 +92,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     storeColumnWidths(activeView.subscription.name, table)
   }
 
-  private def changeTo(subscribed: Subscribed) {
-    val view = viewObjectsBySubscriber(subscribed.subscriber)
+  private def changeTo(subscriber: Subscriber) {
+    val view = viewObjectsBySubscriber(subscriber)
 
     main.severitySlider.install(view.severitied, view.currentSeverityFilter)
     main.searchBox.setText(view.currentSearchFilter)
@@ -196,6 +196,12 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val vos = viewObjects(subscription)
     viewObjectsBySubscriber.put(subscription.subscriber, vos)
     subscriberEventList.add(vos.subscribed)
+  }
+
+  def focusOn(subscriber: Subscriber) {
+    for (view <- viewObjectsBySubscriber.get(subscriber)) {
+      main.subscriptionList.selected = view.subscribed
+    }
   }
 
   private def viewObjects(subscription: Subscription): ViewObjects = {
