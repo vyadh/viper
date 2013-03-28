@@ -49,7 +49,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     // Components
     val toolBar = createToolBar(components.severitySlider, components.searchBox)
     val subscriptionScroll = new ScrollPane(components.subscriptionList)
-    val tableWithPreview = new VerticalSplitPane(new ScrollPane(components.table), new ScrollPane(components.preview))
+    val tableWithPreview = new TableWithPreview(components.table, components.preview)
     val main = new HorizontalSplitPane(subscriptionScroll, tableWithPreview)
 
     // Prefs
@@ -261,9 +261,9 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   // Actions
 
   object Actions {
-    val markRead = new SimpleAction("Mark Read", markAllRead(true))
-    val markUnread = new SimpleAction("Mark Unread", markAllRead(false))
-    val delete = new SimpleAction("Delete", deleteItem)
+    val markRead = new MenuAction("Mark Read", markAllRead(true))
+    val markUnread = new MenuAction("Mark Unread", markAllRead(false))
+    val delete = new MenuAction("Delete", deleteItem)
   }
 
 }

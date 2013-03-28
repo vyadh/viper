@@ -271,14 +271,16 @@ trait UIComponents {
 
   class EmptyBorder(size: Int) extends javax.swing.border.EmptyBorder(size, size, size, size)
 
-  class SimpleAction(name: String, action: => Unit) extends AbstractAction(name) {
-    putValue(Action.SHORT_DESCRIPTION, name)
-    putValue(Action.SMALL_ICON, iconSVG(name, 18))
-    putValue(Action.LARGE_ICON_KEY, iconSVG(name, 28))
-
+  class BasicAction(name: String, action: => Unit) extends AbstractAction(name) {
     def actionPerformed(e: ActionEvent) {
       action
     }
+  }
+
+  class MenuAction(name: String, action: => Unit) extends BasicAction(name, action) {
+    putValue(Action.SHORT_DESCRIPTION, name)
+    putValue(Action.SMALL_ICON, iconSVG(name, 18))
+    putValue(Action.LARGE_ICON_KEY, iconSVG(name, 28))
   }
 
   def iconSVG(name: String, size: Int): Icon = {

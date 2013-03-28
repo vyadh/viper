@@ -3,12 +3,14 @@ package viper.ui
 import ca.odell.glazedlists._
 import calculation.{Calculations, Calculation}
 import viper.domain._
-import javax.swing.{JTable, BoundedRangeModel, JLabel, JTextArea}
-import java.awt.Dimension
+import javax.swing._
+import java.awt.{Dimension}
 import matchers.{Matcher, TextMatcherEditor}
 import ca.odell.glazedlists.swing.GlazedListsSwing
-import viper.domain.Subscription
 import java.util
+import viper.domain.Subscription
+import java.awt.event.KeyEvent
+import viper.util.EQ
 
 trait ViperComponents extends UIComponents {
 
@@ -118,6 +120,68 @@ trait ViperComponents extends UIComponents {
         case _ => true
       }
     })
+  }
+
+  class TableWithPreview(val table: JTable, val preview: JTextArea)
+        extends VerticalSplitPane(new ScrollPane(table), new ScrollPane(preview)) {
+
+    /** Remember the divider location, and use to decide if we are expended or not. */
+    var expandedLocation = -1
+    /** Remember the selected row, so selection can be restored when expanded. */
+    var selected = -1
+
+    table.getInputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "ToggleExpansion")
+    table.getActionMap.put("ToggleExpansion", new BasicAction("ToggleExpansion", toggle))
+
+    def toggle() {
+      if (expanded) {
+        contract()
+      } else {
+        expand()
+      }
+    }
+
+    def expanded = expandedLocation == -1
+
+    def contract() {
+      // Avoid header jumping due to scroll bar control appearing
+      topScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER)
+
+      // Collapse split pane, but remember where divider was
+      expandedLocation = getDividerLocation
+      setDividerLocation(collapsedHeight)
+
+      // Make sure selected row is visible
+      selected = table.getSelectedRow
+      scrollToRow(selected)
+
+      // The selection makes details harder to see when collapsed
+      table.getSelectionModel.clearSelection()
+    }
+
+    def expand() {
+      // Restore scroll bar control setting
+      topScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED)
+
+      // Restore expanded divider location
+      setDividerLocation(expandedLocation)
+      expandedLocation = -1
+
+      // Restore selection
+      table.getSelectionModel.setSelectionInterval(selected, selected)
+    }
+
+    // Resize split pane to show just one table row (header + one row + scroll pane insets)
+    private def collapsedHeight = table.getTableHeader.getHeight + table.getRowHeight + topScrollInsets
+    private def topScrollInsets = topScrollPane.getInsets.top + topScrollPane.getInsets.bottom
+    private def topScrollPane = getTopComponent.asInstanceOf[ScrollPane]
+
+    private def scrollToRow(row: Int) {
+      EQ.later {
+        table.scrollRectToVisible(table.getCellRect(row, 0, true));
+      }
+    }
+
   }
 
 }
