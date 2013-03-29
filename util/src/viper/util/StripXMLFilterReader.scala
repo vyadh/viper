@@ -2,7 +2,10 @@ package viper.util
 
 import java.io.{Reader, FilterReader}
 
-class StripPIFilterReader(in: Reader) extends FilterReader(in) {
+/**
+ * Strips characters that would invalid XML in a streaming context.
+ */
+class StripXMLFilterReader(in: Reader) extends FilterReader(in) {
 
   /** If we are in an XML processing instruction. */
   var inPI = false
@@ -38,11 +41,15 @@ class StripPIFilterReader(in: Reader) extends FilterReader(in) {
           }
 
           // A normal character to include
-          else {
+          else if (isValidChar(cbuf(i))) {
             cbuf(last) = cbuf(i)
             last += 1
           }
 
+          // Any other character is invalid and should be stripped
+          else {
+            i += 1
+          }
         }
 
         // Currently within PI, so check for end
@@ -75,6 +82,19 @@ class StripPIFilterReader(in: Reader) extends FilterReader(in) {
       }
     }
     return true
+  }
+
+  def isValidChar(c: Char): Boolean = {
+    // From: http://en.wikipedia.org/wiki/Valid_characters_in_XML
+    // U+0009, U+000A, U+000D: these are the only C0 controls accepted in XML 1.0;
+    // U+0020–U+D7FF, U+E000–U+FFFD: this excludes some (not all) non-characters in the BMP (all surrogates, U+FFFE and U+FFFF are forbidden);
+    // U+10000–U+10FFFF: this includes all code points in supplementary planes, including non-characters.
+    (c >= 0x0020 && c <= 0xD7FF) ||
+    (c == 0x0009) ||
+    (c == 0x000A) ||
+    (c == 0x000D) ||
+    (c >= 0xE000 && c <= 0xFFFD) ||
+    (c >= 0x10000 && c <= 0x10FFFF)
   }
 
   /**
