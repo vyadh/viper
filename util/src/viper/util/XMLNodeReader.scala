@@ -7,32 +7,33 @@ import XMLStreamConstants._
 
 class XMLNodeReader(reader: Reader, interesting: String => Boolean) {
 
-  var sr = createXMLStreamReader(reader)
+  val sr = createXMLStreamReader(reader)
+  var reading = false
 
   /**
    * @return xml nodes until there are no more, in which case return none
    */
   def next(): Option[XMLNode] = {
-    var name = ""
-    var reading = false
     val content = new StringBuilder
 
     while (sr.hasNext) {
 
       sr.next() match {
         case START_ELEMENT =>
-          name = sr.getLocalName
+          val name = sr.getLocalName
           reading = interesting(name)
           content.clear()
+          if (reading) {
+            return Some(new StartXMLNode(name))
+          }
 
         case CHARACTERS if reading =>
           content.append(sr.getText)
 
         case END_ELEMENT =>
-          name = sr.getLocalName
+          val name = sr.getLocalName
           if (interesting(name)) {
-            val node = new XMLNode(name, content.toString)
-            return Some(node)
+            return Some(new EndXMLNode(name, content.toString))
           }
 
         case END_DOCUMENT =>
@@ -52,4 +53,8 @@ class XMLNodeReader(reader: Reader, interesting: String => Boolean) {
 
 }
 
-case class XMLNode(name: String, content: String)
+trait XMLNode {
+  val name: String
+}
+case class StartXMLNode(name: String) extends XMLNode
+case class EndXMLNode(name: String, content: String) extends XMLNode
