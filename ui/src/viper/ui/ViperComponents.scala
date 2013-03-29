@@ -130,6 +130,7 @@ trait ViperComponents extends UIComponents {
     /** Remember the selected row, so selection can be restored when expanded. */
     var selected = -1
 
+    // Install Actions
     table.getInputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "ToggleExpansion")
     table.getActionMap.put("ToggleExpansion", new BasicAction("ToggleExpansion", toggle))
 
@@ -145,7 +146,9 @@ trait ViperComponents extends UIComponents {
 
     def contract() {
       // Avoid header jumping due to scroll bar control appearing
-      topScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER)
+      if (!topScrollPane.getVerticalScrollBar.isVisible) {
+        topScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER)
+      }
 
       // Collapse split pane, but remember where divider was
       expandedLocation = getDividerLocation
