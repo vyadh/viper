@@ -18,9 +18,11 @@ trait ViperComponents extends UIComponents {
     subscriptionList: ListPanel[Subscribed],
     severitySlider: SeveritySlider,
     searchBox: SearchBox,
-    table: RecordTable,
-    preview: JTextArea
-  )
+    tableWithPreview: TableWithPreview
+  ) {
+    def table = tableWithPreview.table
+    def preview = tableWithPreview.preview
+  }
 
   case class ViewObjects(
     subscription: Subscription,
@@ -122,7 +124,7 @@ trait ViperComponents extends UIComponents {
     })
   }
 
-  class TableWithPreview(val table: JTable, val preview: JTextArea)
+  class TableWithPreview(val table: RecordTable, val preview: JTextArea)
         extends VerticalSplitPane(new ScrollPane(table), new ScrollPane(preview)) {
 
     /** Remember the divider location, and use to decide if we are expended or not. */
@@ -133,6 +135,16 @@ trait ViperComponents extends UIComponents {
     // Install Actions
     table.getInputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "ToggleExpansion")
     table.getActionMap.put("ToggleExpansion", new BasicAction("ToggleExpansion", toggle))
+
+    def reset() {
+      // If table model changes when we are collapsed, revert to expanded view
+      if (!expanded) {
+        expand()
+      }
+
+      // The model has changed, and any current preview doesn't make much sense now
+      preview.setText("")
+    }
 
     def toggle() {
       if (expanded) {

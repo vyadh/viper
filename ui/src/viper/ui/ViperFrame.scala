@@ -39,8 +39,9 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val searchBox = new SearchBox(search) { setEnabled(false) }
     val preview = new TextArea { setEditable(false) }
     val table = new RecordTable(select(preview), tableColumnWidthChanged)
+    val tableWithPreview = new TableWithPreview(table, preview)
 
-    new MainComponents(subscribedList, severitySlider, searchBox, table, preview)
+    new MainComponents(subscribedList, severitySlider, searchBox, tableWithPreview)
   }
 
   private def initLayout(components: MainComponents) {
@@ -49,11 +50,10 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     // Components
     val toolBar = createToolBar(components.severitySlider, components.searchBox)
     val subscriptionScroll = new ScrollPane(components.subscriptionList)
-    val tableWithPreview = new TableWithPreview(components.table, components.preview)
-    val main = new HorizontalSplitPane(subscriptionScroll, tableWithPreview)
+    val main = new HorizontalSplitPane(subscriptionScroll, components.tableWithPreview)
 
     // Prefs
-    registerPrefs("table-preview", tableWithPreview)
+    registerPrefs("table-preview", components.tableWithPreview)
     registerPrefs("main", main)
 
     // Popup table menu
@@ -95,6 +95,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   private def changeTo(subscriber: Subscriber) {
     val view = viewObjectsBySubscriber(subscriber)
 
+    // Install new view
+    main.tableWithPreview.reset()
     main.severitySlider.install(view.severitied, view.currentSeverityFilter)
     main.searchBox.setText(view.currentSearchFilter)
     main.table.install(view.filtered, view.sorted, view.format)
@@ -112,9 +114,6 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
     // Restore previous widths (if any exist)
     restoreColumnWidths(view.subscription.name, main.table)
-
-    // Any current preview doesn't make much sense now
-    main.preview.setText("")
   }
 
   private def search(expression: String) {
