@@ -266,11 +266,9 @@ trait UIComponents {
       def changedUpdate(e: DocumentEvent) { }
     }
 
-    val dimension = new Dimension(200, 20)
-    //    setSize(dimension)
+    val dimension = new Dimension(200, 25)
     setPreferredSize(dimension)
     setMaximumSize(dimension)
-    //    setMinimumSize(dimension)
     getDocument.addDocumentListener(listener)
 
     /** Trigger updates, but only when needed. */
