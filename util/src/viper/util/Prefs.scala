@@ -2,9 +2,8 @@ package viper.util
 
 import java.util.prefs.Preferences
 import java.awt.{Point, Dimension}
-import javax.swing.{JTable, JFrame, JSplitPane}
+import javax.swing.{JFrame, JSplitPane}
 import collection.mutable
-import javax.swing.table.TableColumn
 
 trait Prefs {
 
@@ -81,34 +80,6 @@ trait Prefs {
 
     if (x == -1 || y == -1) None
     else Some(new Point(x, y))
-  }
-
-  def storeColumnWidths(name: String, table: JTable) {
-    foreachColumn(name, table, (key, column) => {
-      prefs.putInt(key, column.getWidth)
-    })
-  }
-
-  def restoreColumnWidths(name: String, table: JTable) {
-    foreachColumn(name, table, (key, column) => {
-      val value = prefs.getInt(key, -1)
-      if (value != -1) {
-        column.setPreferredWidth(value)
-      }
-    })
-  }
-
-
-  // Utils
-
-  private def foreachColumn(name: String, table: JTable, keyColumn: (String, TableColumn) => Unit) {
-    val cm = table.getColumnModel
-    for (i <- 0 until cm.getColumnCount) {
-      val column = cm.getColumn(i)
-      val columnName = column.getHeaderValue.toString
-      val key = name + "." + columnName + ".column"
-      keyColumn(key, column)
-    }
   }
 
 }

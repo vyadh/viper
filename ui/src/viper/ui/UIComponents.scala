@@ -15,7 +15,58 @@ import viper.util.IconCache
 
 trait UIComponents {
 
-  class FilterableSortableTable[T] extends JTable {
+  /** Table with columns that can be sized to the data within them. */
+  class Table extends JTable {
+    setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN)
+
+    def refitColumns() {
+      val columnModel = getColumnModel()
+      for (column <- 0 until columnModel.getColumnCount) {
+        refitColumn(column);
+      }
+    }
+
+    private def refitColumn(column: Int) {
+      val width = math.max(headerWidth(column), dataWidth(column))
+      refitColumn(column, width)
+    }
+
+    private def headerWidth(column: Int): Int = {
+      val tableColumn = getColumnModel.getColumn(column)
+      val renderer = tableColumn.getHeaderRenderer
+      val rendererOrDefault = if (renderer == null) getTableHeader.getDefaultRenderer else renderer
+      val value = tableColumn.getHeaderValue
+      val component = rendererOrDefault.getTableCellRendererComponent(this, value, false, false, -1, column)
+      component.getPreferredSize.width
+    }
+
+    private def dataWidth(column: Int): Int = {
+      var result = 0
+      val max = getColumnModel.getColumn(column).getMaxWidth
+      for (row <- 0 until getRowCount) {
+        result = math.max(result, dataWidth(column, 0))
+        if (result > max) {
+          return result // Optimisation
+        }
+      }
+      result
+    }
+
+    private def dataWidth(column: Int, row: Int): Int = {
+      val renderer = getCellRenderer(row, column)
+      val component = prepareRenderer(renderer, row, column)
+      component.getPreferredSize.width + getIntercellSpacing.width + 8
+    }
+
+    private def refitColumn(column: Int, width: Int) {
+      val header = getTableHeader
+      val tableColumn = header.getColumnModel.getColumn(column)
+      header.setResizingColumn(tableColumn)
+      tableColumn.setWidth(width)
+    }
+  }
+
+  class FilterableSortableTable[T] extends Table {
     private var installed: Option[TableComparatorChooser[T]] = None
     private var selectionListeners = Seq[ListSelectionListener]()
 
@@ -293,20 +344,6 @@ trait UIComponents {
   /** Tell GL to repaint. */
   def fireUpdate[T](list: EventList[T], item: T) {
     list.set(list.indexOf(item), item)
-  }
-
-  class TableColumnWidthListener(table: JTable, onChange: => Unit) extends TableColumnModelListener {
-    def columnMarginChanged(e: ChangeEvent) {
-      // Only react to user-driven column changes
-      if (table.getTableHeader.getResizingColumn != null) {
-        onChange
-      }
-    }
-
-    def columnAdded(e: TableColumnModelEvent) {}
-    def columnRemoved(e: TableColumnModelEvent) {}
-    def columnMoved(e: TableColumnModelEvent) {}
-    def columnSelectionChanged(e: ListSelectionEvent) {}
   }
 
 }

@@ -44,7 +44,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val severitySlider = new SeveritySlider(updateCurrentSeverity) { setEnabled(false) }
     val searchBox = new SearchBox(search) { setEnabled(false) }
     val preview = new TextArea { setEditable(false) }
-    val table = new RecordTable(select(preview), tableColumnWidthChanged)
+    val table = new RecordTable(select(preview))
     val tableWithPreview = new TableWithPreview(table, preview)
 
     new MainComponents(subscribedList, severitySlider, searchBox, tableWithPreview)
@@ -94,10 +94,6 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
   // Actions
 
-  private def tableColumnWidthChanged(table: JTable) {
-    storeColumnWidths(activeView.subscription.name, table)
-  }
-
   private def changeTo(subscriber: Subscriber) {
     val view = viewObjectsBySubscriber(subscriber)
 
@@ -118,8 +114,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     // First column is always the Record object, so don't display it
     main.table.hideColumn(0)
 
-    // Restore previous widths (if any exist)
-    restoreColumnWidths(view.subscription.name, main.table)
+    // Re-fit columns for new data
+    main.table.refitColumns()
   }
 
   private def search(expression: String) {

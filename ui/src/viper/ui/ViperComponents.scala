@@ -45,13 +45,9 @@ trait ViperComponents extends UIComponents {
     setCellRenderer(new SubscribedCellRenderer)
   }
 
-  class RecordTable(onSelection: EventList[Record] => Unit, onColumnWidthChange: JTable => Unit)
-        extends FilterableSortableTable[Record] {
-
+  class RecordTable(onSelection: EventList[Record] => Unit) extends FilterableSortableTable[Record] {
     setDefaultRenderer(classOf[Object], new RecordTableCellRender)
     addSelectionListener { onSelection(selected) }
-    getColumnModel.addColumnModelListener(new TableColumnWidthListener(this, onColumnWidthChange(RecordTable.this)))
-    setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN)
 
     // Line border between rows
     setIntercellSpacing(new Dimension(0, 1))
