@@ -43,8 +43,6 @@ object Viper {
 
     val server = new ViperServer
     server.start(addSubscriber)
-    // todo subscribe to frame closing?
-    server
   }
 
   def initUI(): ViperFrame = {

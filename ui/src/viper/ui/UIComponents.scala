@@ -20,8 +20,9 @@ trait UIComponents {
     setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN)
 
     def refitColumns() {
+      // todo expensive when many rows
       val columnModel = getColumnModel()
-      for (column <- 0 until columnModel.getColumnCount) {
+      for (column <- 0 until columnModel.getColumnCount - 1) { // No need to refit last column
         refitColumn(column);
       }
     }
