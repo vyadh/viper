@@ -18,6 +18,14 @@ class JULXMLConsumer(reader: => Reader, notify: Record => Unit) {
    <method>writeLog</method>
    <thread>10</thread>
    <message>Hello world!</message>
+   <exception>
+     <message>java.lang.RuntimeException: Exception</message>
+     <frame>
+       <class>com.example.ExampleClass</class>
+       <method>exampleMethod</method>
+       <line>66</line>
+     </frame>
+   </exception>
   </record>
   */
 
@@ -41,30 +49,21 @@ class JULXMLConsumer(reader: => Reader, notify: Record => Unit) {
     val filteredReader = new StripXMLFilterReader(reader)
     val nodeReader = new XMLNodeReader(filteredReader, interesting)
 
-    val item = new mutable.HashMap[String, String]()
-
-    processAll(nodeReader, next => consume(next, item, nodeReader))
+    processAllRecords(nodeReader)
   }
 
-  private def processAll(nodeReader: XMLNodeReader, consumer: XMLNode => Unit) {
-    processWhile(nodeReader, _ => true, consumer)
+  private def processAllRecords(reader: XMLNodeReader) {
+    // Temporary storage for node values, needs to be cleared after each record
+    val map = new mutable.HashMap[String, String]()
+
+    reader.consume(consumer(map, reader))
   }
 
-  private def processWhile(nodeReader: XMLNodeReader, condition: XMLNode => Boolean, consumer: XMLNode => Unit) {
-    var next: Option[XMLNode] = None
-    do {
-      next = nodeReader.next()
-      if (next.isDefined) {
-        consumer(next.get)
-      }
-    } while (next != None && condition(next.get))
-  }
-
-  private def consume(node: XMLNode, item: mutable.Map[String, String], nodeReader: XMLNodeReader) {
+  private def consumer(map: mutable.Map[String, String], reader: XMLNodeReader)(node: XMLNode) {
     node match {
-      case EndXMLNode("record", content) => dispatch(item)
-      case EndXMLNode(name, content)     => item(name) = content
-      case StartXMLNode("exception")     => item("exception") = consumeException(nodeReader)
+      case EndXMLNode("record", _)   => dispatch(map); map.clear()
+      case EndXMLNode(name, content) => map(name) = content
+      case StartXMLNode("exception") => map("exception") = map.get("exception").getOrElse("") + consumeException(reader)
       case _ =>
     }
   }
@@ -77,7 +76,7 @@ class JULXMLConsumer(reader: => Reader, notify: Record => Unit) {
       case _ => true
     }
 
-    processWhile(nodeReader, condition, next => next match {
+    nodeReader.consumeWhile(condition, _ match {
       case EndXMLNode("message", content) => res ++= content += '\n'
       case StartXMLNode("frame")          => res ++= "  at "
       case EndXMLNode("class", content)   => res ++= content
@@ -101,13 +100,16 @@ class JULXMLConsumer(reader: => Reader, notify: Record => Unit) {
       val sequence = map("sequence").toInt
       val level = map("level")
       val severity = severities(level)
-      val message = map("message") + map.get("exception").map("\n\n" + _).getOrElse("")
+      val message = map.get("message")
+      val exception = map.get("exception")
+
+      val body = List(message, exception).flatten.mkString("\n\n")
 
       // Since XML log records are not persisted, it's not too bad that it's not completely unique
       // (sequence numbers are only unique within a JVM, but we might be opening log files from many)
       val id = sequence + "_" + millis
 
-      new JULXMLLogRecord(id, millis, sequence, level, severity, message)
+      new JULXMLLogRecord(id, millis, sequence, level, severity, body)
     } catch {
       case e: NoSuchElementException => throw new Exception(e)//todo handle or let fall through?
     }

@@ -10,6 +10,24 @@ class XMLNodeReader(reader: Reader, interesting: String => Boolean) {
   val sr = createXMLStreamReader(reader)
   var reading = false
 
+  def consume(consumer: XMLNode => Unit) {
+    consumeWhile(_ => true, consumer)
+  }
+
+  /**
+   * Keeps consuming nodes while the condition is true.
+   */
+  def consumeWhile(condition: XMLNode => Boolean, consumer: XMLNode => Unit) {
+    var node: Option[XMLNode] = None
+    do {
+      node = next()
+
+      if (node.isDefined) {
+        consumer(node.get)
+      }
+    } while (node != None && condition(node.get))
+  }
+
   /**
    * @return xml nodes until there are no more, in which case return none
    */
