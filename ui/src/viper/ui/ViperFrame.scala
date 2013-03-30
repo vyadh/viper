@@ -20,8 +20,14 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
 
   def close() {
+    resetUI()
     closeFiltering()
     removeSubscriptions()
+  }
+
+  /** Reset any temporary UI modifications. */
+  def resetUI() {
+    main.tableWithPreview.reset()
   }
 
 

@@ -51,7 +51,9 @@ trait Prefs {
       }
     }
 
-    saving += { () => prefs.putInt(key, component.getDividerLocation) }
+    saving += { () =>
+      prefs.putInt(key, component.getDividerLocation)
+    }
   }
 
 
