@@ -72,6 +72,10 @@ trait UI extends Prefs {
     val manager = KeyboardFocusManager.getCurrentKeyboardFocusManager
     manager.addKeyEventPostProcessor(new KeyEventPostProcessor {
       def postProcessKeyEvent(e: KeyEvent): Boolean = {
+        // Only do action on key release
+        if (e.getID != KeyEvent.KEY_RELEASED) {
+          return false
+        }
         // Some actions conflict with currently focused components
         if (e.getSource.isInstanceOf[JTextComponent]) {
           return false

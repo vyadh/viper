@@ -146,7 +146,7 @@ trait UIComponents {
       val selected = this.selected
 
       // If we are clearing the whole list
-      if (selected.isEmpty || selected.size() == view.size()) {
+      if (selected.size() == view.size()) {
         view.clear()
       }
       // 2x faster way of updating when the selection is contiguous
