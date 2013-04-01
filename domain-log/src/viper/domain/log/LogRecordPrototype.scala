@@ -14,7 +14,7 @@ object LogRecordPrototype extends RecordPrototype {
     new RecordField("Body",        (r: Record) => convert(r).body)
   )
 
-  def defaultSort = (time, true)
+  def defaultSort = List((time, true))
 
   private def convert(record: Record): LogRecord = {
     try {

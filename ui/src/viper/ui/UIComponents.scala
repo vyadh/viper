@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent
 import text.DefaultCaret
 import scala.Some
 import viper.util.IconCache
+import scala.List
 
 trait UIComponents {
 
@@ -92,9 +93,10 @@ trait UIComponents {
       })
     }
 
-    def sort(name: String, reverse: Boolean) {
+    def sort(defaultSort: List[(String, Boolean)]) {
       for {
         comparatorChooser <- installed
+        (name, reverse) <- defaultSort
         index <- getColumnIndex(name)
       } {
         comparatorChooser.appendComparator(index, 0, reverse)
@@ -116,7 +118,7 @@ trait UIComponents {
 
     private def installSortedTable(eventList: SortedList[T]) {
       installed = Some(
-        TableComparatorChooser.install(this, eventList, AbstractTableComparatorChooser.SINGLE_COLUMN)
+        TableComparatorChooser.install(this, eventList, AbstractTableComparatorChooser.MULTIPLE_COLUMN_KEYBOARD)
       )
     }
 

@@ -125,8 +125,7 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     main.searchBox.setEnabled(true)
 
     // Apply default sort
-    val (name, reverse) = view.format.defaultSort
-    main.table.sort(name, reverse)
+    main.table.sort(view.format.defaultSort)
 
     // First column is always the Record object, so don't display it
     main.table.hideColumn(0)

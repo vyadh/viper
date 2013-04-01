@@ -25,8 +25,8 @@ class RecordTableFormat(val prototype: RecordPrototype) extends TableFormat[Reco
     }
   }
 
-  def defaultSort: (String, Boolean) = {
-    val (field, reverse) = prototype.defaultSort
+  def defaultSort: List[(String, Boolean)] = prototype.defaultSort.map { s =>
+    val (field, reverse) = s
     (field.name, reverse)
   }
 
