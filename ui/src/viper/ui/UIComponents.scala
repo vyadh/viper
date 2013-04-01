@@ -22,7 +22,7 @@ trait UIComponents {
     def refitColumns() {
       // todo expensive when many rows
       val columnModel = getColumnModel()
-      for (column <- 0 until columnModel.getColumnCount - 1) { // No need to refit last column
+      for (column <- 0 until columnModel.getColumnCount) {
         refitColumn(column);
       }
     }
@@ -56,14 +56,16 @@ trait UIComponents {
     private def dataWidth(column: Int, row: Int): Int = {
       val renderer = getCellRenderer(row, column)
       val component = prepareRenderer(renderer, row, column)
-      component.getPreferredSize.width + getIntercellSpacing.width + 8
+      component.getPreferredSize.width + getIntercellSpacing.width + 12
     }
 
     private def refitColumn(column: Int, width: Int) {
       val header = getTableHeader
       val tableColumn = header.getColumnModel.getColumn(column)
       header.setResizingColumn(tableColumn)
+
       tableColumn.setWidth(width)
+      tableColumn.setPreferredWidth(width) // Stop columns resizing when re-sorted
     }
   }
 
