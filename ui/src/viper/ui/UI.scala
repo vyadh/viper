@@ -2,14 +2,16 @@ package viper.ui
 
 import fonts.Fonts
 import javax.swing._
-import java.awt.event.{WindowEvent, WindowAdapter}
+import java.awt.event.{KeyEvent, WindowEvent, WindowAdapter}
+import text.JTextComponent
 import viper.util.{Prefs, EQ}
-import java.awt.{Font, Dimension}
+import java.awt.{KeyboardFocusManager, KeyEventPostProcessor, Font, Dimension}
 
 trait UI extends Prefs {
 
   // Self-type: Must be mixed into class that is a JFrame
   this: JFrame =>
+
 
   /** Title of the frame, also used for pulling window preferences */
   val name: String
@@ -63,6 +65,27 @@ trait UI extends Prefs {
         closing()
       }
     })
+  }
+
+  def installKeyAction(keyStroke: KeyStroke, action: => Unit) {
+    // Other components consume our InputMap keys, so use post processor instead
+    val manager = KeyboardFocusManager.getCurrentKeyboardFocusManager
+    manager.addKeyEventPostProcessor(new KeyEventPostProcessor {
+      def postProcessKeyEvent(e: KeyEvent): Boolean = {
+        // Some actions conflict with currently focused components
+        if (e.getSource.isInstanceOf[JTextComponent]) {
+          return false
+        }
+        val eventKey = KeyStroke.getKeyStroke(e.getKeyCode, e.getModifiersEx)
+        if (eventKey == keyStroke) {
+          action
+          true
+        } else {
+          false
+        }
+      }
+    })
+
   }
 
   private def closing() {

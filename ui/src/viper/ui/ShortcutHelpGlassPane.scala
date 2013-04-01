@@ -6,10 +6,10 @@ import geom.Rectangle2D
 import scala.List
 import event.{MouseEvent, MouseAdapter, InputEvent, KeyEvent}
 
-class ShortcutGlassPane extends JComponent {
+object ShortcutHelpGlassPane extends JComponent {
 
   val helpWidth = 400
-  val helpHeight = 320
+  val helpHeight = 300
 
   val shortcuts = {
     import KeyStroke.getKeyStroke
@@ -27,8 +27,7 @@ class ShortcutGlassPane extends JComponent {
       Shortcut(getKeyStroke(VK_UP,     noModifiers),    "previous item"),
       Shortcut(getKeyStroke(VK_DOWN,   noModifiers),    "next item"),
       Shortcut(getKeyStroke(VK_LEFT,   noModifiers),    "focus subscriptions"),
-      Shortcut(getKeyStroke(VK_RIGHT,  noModifiers),    "focus items"),
-      Shortcut(getKeyStroke(VK_TAB,    noModifiers),    "toggle views")
+      Shortcut(getKeyStroke(VK_RIGHT,  noModifiers),    "focus items")
     )
   }
 

@@ -36,14 +36,24 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   private def init(): MainComponents = {
     val main = createMainComponents(subscriberEventList)
     initLayout(main)
-    initShortcuts()
+    initShortcuts(main)
     main
   }
 
-  def initShortcuts() {
-    (new ShortcutGlassPane).install(this)
+  def initShortcuts(main: MainComponents) {
+    ShortcutHelpGlassPane.install(this)
 
-    // todo shortcut actions
+    import java.awt.event.KeyEvent._
+    import java.awt.event.InputEvent._
+    import KeyStroke.getKeyStroke
+    val noModifiers = 0
+
+    // Install actions not already implemented by standard swing components
+    installKeyAction(getKeyStroke(VK_R, noModifiers),     markAllRead(true))
+    installKeyAction(getKeyStroke(VK_U, noModifiers),     markAllRead(false))
+    installKeyAction(getKeyStroke(VK_F, CTRL_DOWN_MASK),  main.searchBox.requestFocus())
+    installKeyAction(getKeyStroke(VK_LEFT, noModifiers),  main.subscriptionList.requestFocus())
+    installKeyAction(getKeyStroke(VK_RIGHT, noModifiers), main.table.requestFocus())
   }
 
   private def createMainComponents(subscriberEventList: EventList[Subscribed]): MainComponents = {
