@@ -214,6 +214,13 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     val vos = viewObjects(subscription)
     viewObjectsBySubscriber.put(subscription.subscriber, vos)
     subscriberEventList.add(vos.subscribed)
+
+    // If this is the first one, make it active
+    if (subscriberEventList.size == 1) {
+      EQ.later {
+        main.subscriptionList.setSelectedIndex(0)
+      }
+    }
   }
 
   def focusOn(subscriber: Subscriber) {
@@ -249,10 +256,17 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
   // Util functions
 
-  private def activeSubscriber: Subscriber = main.subscriptionList.selected.get(0).subscriber
+  private def activeSubscriber: Option[Subscriber] = {
+    val selected = main.subscriptionList.selected
+    if (selected.isEmpty) {
+      None
+    } else {
+      Some(selected.get(0).subscriber)
+    }
+  }
 
   private def activeView: ViewObjects = {
-    val opt = viewObjectsBySubscriber.get(activeSubscriber)
+    val opt = activeSubscriber.flatMap(viewObjectsBySubscriber.get(_))
     if (opt.isEmpty) {
       throw new IllegalStateException("No active view")
     }

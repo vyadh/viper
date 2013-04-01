@@ -4,7 +4,7 @@ import images.Images
 import javax.swing._
 import javax.swing.event._
 import java.awt._
-import ca.odell.glazedlists.{SortedList, FilterList, EventList}
+import ca.odell.glazedlists.{BasicEventList, SortedList, FilterList, EventList}
 import ca.odell.glazedlists.swing.{EventSelectionModel, TableComparatorChooser, EventTableModel, EventListModel}
 import collection.mutable
 import ca.odell.glazedlists.gui.{AbstractTableComparatorChooser, TableFormat}
@@ -71,7 +71,14 @@ trait UIComponents {
     private var installed: Option[TableComparatorChooser[T]] = None
     private var selectionListeners = Seq[ListSelectionListener]()
 
-    def selected = getSelectionModel.asInstanceOf[EventSelectionModel[T]].getSelected
+    def selected: EventList[T] = {
+      val selectionModel = getSelectionModel
+      if (selectionModel.isInstanceOf[EventSelectionModel[T]]) {
+        selectionModel.asInstanceOf[EventSelectionModel[T]].getSelected
+      } else {
+        new BasicEventList[T]
+      }
+    }
 
     def addSelectionListener(listener: => Unit) {
       if (installed.isDefined) throw new IllegalStateException("Add listeners before install")
