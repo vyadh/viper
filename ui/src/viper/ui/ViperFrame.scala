@@ -36,7 +36,14 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   private def init(): MainComponents = {
     val main = createMainComponents(subscriberEventList)
     initLayout(main)
+    initShortcuts()
     main
+  }
+
+  def initShortcuts() {
+    (new ShortcutGlassPane).install(this)
+
+    // todo shortcut actions
   }
 
   private def createMainComponents(subscriberEventList: EventList[Subscribed]): MainComponents = {
