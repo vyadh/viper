@@ -5,7 +5,7 @@ import viper.domain.{Record, RecordField, RecordPrototype}
 object JULXMLLogRecordPrototype extends RecordPrototype {
 
   private val time = new RecordField("Time", convert(_).datetime)
-  private val sequence = new RecordField("Sequence", convert(_).sequence)
+  private val sequence = new RecordField("Seq", convert(_).sequence)
 
   def fields = Array(
     time,
