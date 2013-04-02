@@ -21,7 +21,6 @@ trait UIComponents {
     setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN)
 
     def refitColumns() {
-      // todo expensive when many rows
       val columnModel = getColumnModel()
       for (column <- 0 until columnModel.getColumnCount) {
         refitColumn(column);
@@ -44,10 +43,11 @@ trait UIComponents {
 
     private def dataWidth(column: Int): Int = {
       var result = 0
-      val max = getColumnModel.getColumn(column).getMaxWidth
-      for (row <- 0 until getRowCount) {
+      val maxWidth = getColumnModel.getColumn(column).getMaxWidth
+      val rows = math.min(getRowCount, 100)
+      for (row <- 0 until rows) {
         result = math.max(result, dataWidth(column, 0))
-        if (result > max) {
+        if (result > maxWidth) {
           return result // Optimisation
         }
       }
