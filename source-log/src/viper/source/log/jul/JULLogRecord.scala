@@ -1,4 +1,4 @@
-package viper.source.log.xml
+package viper.source.log.jul
 
 import viper.domain.{Severity, Record}
 import java.util.Date
@@ -6,7 +6,7 @@ import java.util.Date
 /**
  * A log record for java.util.logging XML output.
  */
-case class JULXMLLogRecord(
+case class JULLogRecord(
       id: String,
       timestamp: Long,
       sequence: Integer,

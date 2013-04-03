@@ -1,8 +1,8 @@
-package viper.source.log.xml
+package viper.source.log.jul
 
 import viper.domain.{Record, RecordField, RecordPrototype}
 
-object JULXMLLogRecordPrototype extends RecordPrototype {
+object JULLogRecordPrototype extends RecordPrototype {
 
   private val time = new RecordField("Time", convert(_).datetime)
   private val sequence = new RecordField("Seq", convert(_).sequence)
@@ -19,9 +19,9 @@ object JULXMLLogRecordPrototype extends RecordPrototype {
     (sequence, true)
   )
 
-  private def convert(record: Record): JULXMLLogRecord = {
+  private def convert(record: Record): JULLogRecord = {
     try {
-      record.asInstanceOf[JULXMLLogRecord]
+      record.asInstanceOf[JULLogRecord]
     } catch {
       case _: ClassCastException =>
         throw new IllegalArgumentException("Unsupported type: " + record)

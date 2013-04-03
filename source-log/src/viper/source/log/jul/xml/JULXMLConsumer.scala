@@ -4,6 +4,7 @@ import java.io.Reader
 import viper.util._
 import collection.mutable
 import viper.domain._
+import viper.source.log.jul.JULLogRecord
 
 class JULXMLConsumer(reader: => Reader, notify: Record => Unit) {
 
@@ -94,7 +95,7 @@ class JULXMLConsumer(reader: => Reader, notify: Record => Unit) {
     notify(record)
   }
 
-  private def parse(map: mutable.Map[String, String]): JULXMLLogRecord = {
+  private def parse(map: mutable.Map[String, String]): JULLogRecord = {
     try {
       val millis = map("millis").toLong
       val sequence = map("sequence").toInt
@@ -109,7 +110,7 @@ class JULXMLConsumer(reader: => Reader, notify: Record => Unit) {
       // (sequence numbers are only unique within a JVM, but we might be opening log files from many)
       val id = sequence + "_" + millis
 
-      new JULXMLLogRecord(id, millis, sequence, level, severity, body)
+      new JULLogRecord(id, millis, sequence, level, severity, body)
     } catch {
       case e: NoSuchElementException => throw new Exception(e)//todo handle or let fall through?
     }

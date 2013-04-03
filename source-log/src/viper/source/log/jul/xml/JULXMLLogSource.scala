@@ -3,6 +3,7 @@ package viper.source.log.xml
 import viper.source.log.LogSource
 import viper.domain.{Record, Subscription, Subscriber}
 import viper.util.PersistentFileReader
+import viper.source.log.jul.JULLogRecordPrototype
 
 class JULXMLLogSource extends LogSource {
 
@@ -10,7 +11,7 @@ class JULXMLLogSource extends LogSource {
 
   def subscribe(subscriber: Subscriber) = new JULXMLLogSubscription(subscriber)
 
-  class JULXMLLogSubscription(subscriber: Subscriber) extends Subscription(subscriber, JULXMLLogRecordPrototype) {
+  class JULXMLLogSubscription(subscriber: Subscriber) extends Subscription(subscriber, JULLogRecordPrototype) {
     private val reader = new PersistentFileReader(subscriber.query)
 
     def deliver(to: (Seq[Record]) => Unit) {
