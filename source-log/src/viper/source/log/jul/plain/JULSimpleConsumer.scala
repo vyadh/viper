@@ -5,6 +5,7 @@ import collection.mutable
 import viper.domain._
 import viper.source.log.jul.AbstractJULConsumer
 import java.text.SimpleDateFormat
+import viper.util.TimeoutTask
 
 class JULSimpleConsumer(reader: => Reader, notify: Record => Unit) extends AbstractJULConsumer(notify) {
 
@@ -47,30 +48,44 @@ class JULSimpleConsumer(reader: => Reader, notify: Record => Unit) extends Abstr
     // Temporary storage for node values, needs to be cleared after each record
     val map = new mutable.HashMap[String, String]()
 
-    var line: String = null
-    do {
-      line = reader.readLine()
-      consumer(map, line)
-    } while (line != null)
+    // Action to take when we want to dispatch the next event
+    val next = () => indicateNext(map)
+
+    // Create fallback, so if event is not sent within 2 secs, it's likely the last one, so send on timeout
+    val timeout = new TimeoutTask(1000)(next())
+
+    try {
+
+      val consumption = consumer(map, timeout, _: String)
+
+      // Consume all lines
+      var line: String = null
+      do {
+        line = reader.readLine()
+        consumption(line)
+      } while (line != null)
+
+    } finally {
+      // No longer need the timeout
+      timeout.close()
+    }
   }
 
-  private def consumer(map: mutable.Map[String, String], line: String) {
+  private def consumer(map: mutable.Map[String, String], timeout: TimeoutTask, line: String) {
     line match {
       case DateTimePattern(dateStr) => {
-        //todo not good enough, only sends events when next one comes in
-        if (!map.isEmpty) {
-          dispatch(map)
-        }
-        map.clear()
+        timeout.stage()
         map.put("millis", millis(dateStr))
         map.put("sequence", nextSequence())
       }
       case LevelMessagePattern(level, message) => {
+        timeout.delay()
         map.put("level", level)
         map.put("message", message)
       }
       case exceptionLine: String => {
-        map.put("message", map("message") + "\n" + exceptionLine)
+        timeout.delay()
+        map.put("message", map("message") + " \n" + exceptionLine)
       }
     }
   }
@@ -82,6 +97,15 @@ class JULSimpleConsumer(reader: => Reader, notify: Record => Unit) extends Abstr
   private def nextSequence(): String = {
     sequence += 1
     sequence.toString
+  }
+
+  private def indicateNext(map: mutable.Map[String, String]) {
+    if (!map.isEmpty) {
+      dispatch(map)
+    }
+
+    // Clean out the map ready for the next record
+    map.clear()
   }
 
 }
