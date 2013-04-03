@@ -13,6 +13,7 @@ object LogFileGenerator {
     }
 
     val logger = Logger.getLogger("mylogger")
+    logger.log(Level.WARNING, "normal message")
     logger.log(Level.SEVERE, "my message", new IllegalStateException("my exception", new Exception("my cause")))
   }
 

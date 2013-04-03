@@ -37,7 +37,7 @@ class ViperServer {
 
   def subscriber(path: String): Subscriber = {
     val file = new File(path)
-    new Subscriber("jul-xml", file.getName, path)
+    new Subscriber("auto-file", file.getName, path)
   }
 
 }

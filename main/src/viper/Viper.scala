@@ -1,9 +1,11 @@
 package viper
 
 import domain.Subscriber
+import source.log.autofile.AutoFileSource
 import source.log.fake.FakeLogSource
 import source.log.jms.JMSLogSource
 import source.log.random.RandomLogSource
+import source.log.regular.JULSimpleLogSource
 import source.log.xml.JULXMLLogSource
 import source.{CompositeSource, Source}
 import ui.ViperFrame
@@ -65,7 +67,7 @@ object Viper {
   def loadFiles(source: Source, files: Array[String], frame: ViperFrame) {
     for (path <- files) {
       val name = new File(path).getName
-      val subscriber = new Subscriber("jul-xml", name, path)
+      val subscriber = new Subscriber("auto-file", name, path)
       val subscription = source.subscribe(subscriber)
       frame.addSubscription(subscription)
     }
@@ -84,7 +86,9 @@ object Viper {
       new FakeLogSource,
       new RandomLogSource,
       new JMSLogSource,
-      new JULXMLLogSource
+      new AutoFileSource,
+      new JULXMLLogSource,
+      new JULSimpleLogSource
     ))
   }
 
