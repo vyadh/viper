@@ -8,8 +8,14 @@ import viper.source.log.jul.plain.JULSimpleLogSubscription
 /** Detect file type, and dispatch to appropriate underlying source. */
 class AutoFileSource extends Source {
 
-  private val simpleRegex = """([A-Z][a-z]{2} \d\d, \d{4} \d{1,2}:\d\d:\d\d [AP]?M?) ?.+"""
+  private val simpleRegexJava7 = """([A-Z][a-z]{2} \d\d, \d{4} \d{1,2}:\d\d:\d\d [AP]M) .+"""
+  private val simpleRegexJava6 = """(\d\d-[A-Z][a-z]{2}-\d{4} \d\d:\d\d:\d\d) .+"""
   private val xmlIndicators  = List("<log>", "<record>")
+
+  /*
+04-Apr-2013 09:31:43 sun.rmi.server.UnicastRef invoke
+FINE: pool-20-thread-1: free connection (reuse = true)
+   */
 
   def supports(subscriber: Subscriber) = subscriber.ref == "auto-file"
 
@@ -27,7 +33,8 @@ class AutoFileSource extends Source {
     if (xmlIndicators.forall(chunk.contains(_))) {
       return XMLJUL
     }
-    if (firstLine(chunk).matches(simpleRegex)) {
+    val line = firstLine(chunk)
+    if (line.matches(simpleRegexJava7) || line.matches(simpleRegexJava6)) {
       return SimpleJUL
     }
     throw new UnsupportedOperationException("Unknown file type: " + path)

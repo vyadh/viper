@@ -27,12 +27,16 @@ class JULSimpleConsumer(reader: => Reader, notify: Record => Unit) extends Abstr
   */
 
   /** E.g. Apr 02, 2013 9:58:34 AM */
-  private val DateTimePattern = """([A-Z][a-z]{2} \d\d, \d{4} \d{1,2}:\d\d:\d\d [AP]M) .+""".r
+  private val DateTimePatternJava7 = """([A-Z][a-z]{2} \d\d, \d{4} \d{1,2}:\d\d:\d\d [AP]M) .+""".r
+  /** E.g. 04-Apr-2013 09:31:43 */
+  private val DateTimePatternJava6 = """(\d\d-[A-Z][a-z]{2}-\d{4} \d\d:\d\d:\d\d) .+""".r
   /** E.g. INFO: message */
   private val LevelMessagePattern = """(FINEST|FINER|FINE|CONFIG|INFO|WARNING|SEVERE): (.+)""".r
 
   /** E.g. Apr 02, 2013 9:58:34 AM */
-  private val dateFormat = new SimpleDateFormat("MMM dd, yyyy hh:mm:ss aa")
+  private val dateFormatJava7 = new SimpleDateFormat("MMM dd, yyyy hh:mm:ss aa")
+  /** E.g. 04-Apr-2013 09:31:43 */
+  private val dateFormatJava6 = new SimpleDateFormat("dd-MMM-yyyy hh:mm:ss")
 
   /** Implicit sequence value, used to order events with the same time. */
   private var sequence = 0
@@ -73,9 +77,14 @@ class JULSimpleConsumer(reader: => Reader, notify: Record => Unit) extends Abstr
 
   private def consumer(map: mutable.Map[String, String], timeout: TimeoutTask, line: String) {
     line match {
-      case DateTimePattern(dateStr) => {
+      case DateTimePatternJava7(dateStr) => {
         timeout.stage()
-        map.put("millis", millis(dateStr))
+        map.put("millis", millisJava7(dateStr))
+        map.put("sequence", nextSequence())
+      }
+      case DateTimePatternJava6(dateStr) => {
+        timeout.stage()
+        map.put("millis", millisJava6(dateStr))
         map.put("sequence", nextSequence())
       }
       case LevelMessagePattern(level, message) => {
@@ -90,8 +99,12 @@ class JULSimpleConsumer(reader: => Reader, notify: Record => Unit) extends Abstr
     }
   }
 
-  private def millis(dateStr: String): String = {
-    dateFormat.parse(dateStr).getTime.toString
+  private def millisJava7(dateStr: String): String = {
+    dateFormatJava7.parse(dateStr).getTime.toString
+  }
+
+  private def millisJava6(dateStr: String): String = {
+    dateFormatJava6.parse(dateStr).getTime.toString
   }
 
   private def nextSequence(): String = {
