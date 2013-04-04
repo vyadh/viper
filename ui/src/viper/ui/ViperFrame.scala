@@ -245,10 +245,20 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   private def subscribe(subscription: Subscription, subscribed: Subscribed): EventList[Record] = {
     val result = new BasicEventList[Record]()
     // Subscribe to events by adding them to the event list as they come in
-    subscription.deliver(records => EQ.later {
-      result.addAll(records)
-      subscribed.added(records)
-      main.subscriptionList.repaint()
+    subscription.deliver(records => {
+      // When we get the first records in, refit the columns
+      // Not the best test though, as it assumes the first record is representative of all of them
+      val refit = result.isEmpty() && records.size > 0
+
+      EQ.later {
+        result.addAll(records)
+        subscribed.added(records)
+        main.subscriptionList.repaint()
+      }
+
+      if (refit) {
+        EQ.later { main.table.refitColumns() }
+      }
     })
     result
   }
