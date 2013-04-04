@@ -8,8 +8,8 @@ import viper.source.log.jul.plain.JULSimpleLogSubscription
 /** Detect file type, and dispatch to appropriate underlying source. */
 class AutoFileSource extends Source {
 
-  private val simpleRegex = """([A-Z][a-z]{2} \d\d, \d{4} \d{1,2}:\d\d:\d\d [AP]M) .+"""
-  private val xmlContent  = """<!DOCTYPE log SYSTEM "logger.dtd">"""
+  private val simpleRegex = """([A-Z][a-z]{2} \d\d, \d{4} \d{1,2}:\d\d:\d\d [AP]?M?) ?.+"""
+  private val xmlIndicators  = List("<log>", "<record>")
 
   def supports(subscriber: Subscriber) = subscriber.ref == "auto-file"
 
@@ -24,7 +24,7 @@ class AutoFileSource extends Source {
 
   def detect(path: String): AnyRef = {
     val chunk = readChunk(path)
-    if (chunk.contains(xmlContent)) {
+    if (xmlIndicators.forall(chunk.contains(_))) {
       return XMLJUL
     }
     if (firstLine(chunk).matches(simpleRegex)) {
