@@ -8,7 +8,7 @@ import source.log.random.RandomLogSource
 import source.log.regular.JULSimpleLogSource
 import source.log.xml.JULXMLLogSource
 import source.{CompositeSource, Source}
-import ui.ViperFrame
+import ui.{DragAndDropHandler, ViperFrame}
 import java.io.File
 
 object Viper {
@@ -20,6 +20,7 @@ object Viper {
       val sources = allSources
       loadSubscribers(sources, frame)
       loadFiles(sources, args, frame)
+      startDragAndDrop(sources, frame)
       startServer(sources, frame)
     }
   }
@@ -32,19 +33,26 @@ object Viper {
     }
   }
 
-  def startServer(source: Source, frame: ViperFrame) {
-    def addSubscriber(subscriber: Subscriber) {
-      if (!frame.hasSubscriber(subscriber)) {
-        val subscription = source.subscribe(subscriber)
-        frame.addSubscription(subscription)
-        frame.toFront()
-      }
-      frame.toFront()
-      frame.focusOn(subscriber)
-    }
+  def startDragAndDrop(source: Source, frame: ViperFrame) {
+    DragAndDropHandler.install(frame, path => addAutoFileSubscriber(path, source, frame))
+  }
 
+  def startServer(source: Source, frame: ViperFrame) {
     val server = new ViperServer
-    server.start(addSubscriber)
+    server.start(path => addAutoFileSubscriber(new File(path), source, frame))
+  }
+  
+  def addAutoFileSubscriber(file: File, source: Source, frame: ViperFrame) {
+    addSubscriber(autoFileSubscriber(file), source, frame)
+  }
+
+  def addSubscriber(subscriber: Subscriber, source: Source, frame: ViperFrame) {
+    if (!frame.hasSubscriber(subscriber)) {
+      val subscription = source.subscribe(subscriber)
+      frame.addSubscription(subscription)
+    }
+    frame.toFront()
+    frame.focusOn(subscriber)
   }
 
   def initUI(): ViperFrame = {
@@ -66,8 +74,7 @@ object Viper {
 
   def loadFiles(source: Source, files: Array[String], frame: ViperFrame) {
     for (path <- files) {
-      val name = new File(path).getName
-      val subscriber = new Subscriber("auto-file", name, path)
+      val subscriber = autoFileSubscriber(new File(path))
       val subscription = source.subscribe(subscriber)
       frame.addSubscription(subscription)
     }
@@ -76,8 +83,8 @@ object Viper {
   def configFromFile(file: String): SubscriberConfig = {
     val config = new SubscriberConfig(file)
     // todo Hard code some development subscribers for now
-    config.add(new Subscriber("fake", "Fake", ""))
-    config.add(new Subscriber("random", "Random", ""))
+//    config.add(new Subscriber("fake", "Fake", ""))
+//    config.add(new Subscriber("random", "Random", ""))
     config
   }
 
@@ -90,6 +97,12 @@ object Viper {
       new JULXMLLogSource,
       new JULSimpleLogSource
     ))
+  }
+
+  def autoFileSubscriber(file: File): Subscriber = {
+    val path = file.toString
+    val name = file.getName
+    new Subscriber("auto-file", name, path)
   }
 
   def time[T](id: String)(block: => T): T = {
