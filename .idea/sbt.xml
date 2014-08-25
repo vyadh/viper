@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaSbtSettings">
+    <option name="linkedExternalProjectsSettings">
+      <SbtProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/domain" />
+            <option value="$PROJECT_DIR$/domain-log" />
+            <option value="$PROJECT_DIR$/domain-log/project" />
+            <option value="$PROJECT_DIR$/domain-message" />
+            <option value="$PROJECT_DIR$/domain-message/project" />
+            <option value="$PROJECT_DIR$/domain/project" />
+            <option value="$PROJECT_DIR$/main" />
+            <option value="$PROJECT_DIR$/main/project" />
+            <option value="$PROJECT_DIR$/project" />
+            <option value="$PROJECT_DIR$/source" />
+            <option value="$PROJECT_DIR$/source-log" />
+            <option value="$PROJECT_DIR$/source-log/project" />
+            <option value="$PROJECT_DIR$/source/project" />
+            <option value="$PROJECT_DIR$/store" />
+            <option value="$PROJECT_DIR$/store-mapdb" />
+            <option value="$PROJECT_DIR$/store-mapdb/project" />
+            <option value="$PROJECT_DIR$/store/project" />
+            <option value="$PROJECT_DIR$/ui" />
+            <option value="$PROJECT_DIR$/ui/project" />
+            <option value="$PROJECT_DIR$/util" />
+            <option value="$PROJECT_DIR$/util/project" />
+          </set>
+        </option>
+        <option name="useAutoImport" value="true" />
+      </SbtProjectSettings>
+    </option>
+  </component>
+</project>
+

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SBT: com.kitfox.svg:svg-salamander:1.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.kitfox.svg/svg-salamander/jars/svg-salamander-1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

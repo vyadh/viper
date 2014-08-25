@@ -3,16 +3,27 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/domain/domain.iml" filepath="$PROJECT_DIR$/domain/domain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/domain-build.iml" filepath="$PROJECT_DIR$/.idea/modules/domain-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/domain-log/domain-log.iml" filepath="$PROJECT_DIR$/domain-log/domain-log.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/domain-log-build.iml" filepath="$PROJECT_DIR$/.idea/modules/domain-log-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/domain-message/domain-message.iml" filepath="$PROJECT_DIR$/domain-message/domain-message.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/domain-message-build.iml" filepath="$PROJECT_DIR$/.idea/modules/domain-message-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/main/main.iml" filepath="$PROJECT_DIR$/main/main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/main-build.iml" filepath="$PROJECT_DIR$/.idea/modules/main-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root.iml" filepath="$PROJECT_DIR$/.idea/modules/root.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/root-build.iml" filepath="$PROJECT_DIR$/.idea/modules/root-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/source/source.iml" filepath="$PROJECT_DIR$/source/source.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/source-build.iml" filepath="$PROJECT_DIR$/.idea/modules/source-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/source-log/source-log.iml" filepath="$PROJECT_DIR$/source-log/source-log.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/source-log-build.iml" filepath="$PROJECT_DIR$/.idea/modules/source-log-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/store/store.iml" filepath="$PROJECT_DIR$/store/store.iml" />
-      <module fileurl="file://$PROJECT_DIR$/store-mapdb/store-mapdb.iml" filepath="$PROJECT_DIR$/store-mapdb/store-mapdb.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/store-build.iml" filepath="$PROJECT_DIR$/.idea/modules/store-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/store-mapdb.iml" filepath="$PROJECT_DIR$/.idea/modules/store-mapdb.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/store-mapdb-build.iml" filepath="$PROJECT_DIR$/.idea/modules/store-mapdb-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/ui/ui.iml" filepath="$PROJECT_DIR$/ui/ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ui-build.iml" filepath="$PROJECT_DIR$/.idea/modules/ui-build.iml" />
       <module fileurl="file://$PROJECT_DIR$/util/util.iml" filepath="$PROJECT_DIR$/util/util.iml" />
-      <module fileurl="file://$PROJECT_DIR$/viper.iml" filepath="$PROJECT_DIR$/viper.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/util-build.iml" filepath="$PROJECT_DIR$/.idea/modules/util-build.iml" />
     </modules>
   </component>
 </project>
