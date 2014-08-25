@@ -38,6 +38,17 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     resetUI()
     closeFiltering()
     removeSubscriptions()
+    waitAndExit()
+  }
+
+  def waitAndExit() {
+    new Thread("ensure exit thread") {
+      setDaemon(true)
+      override def run() {
+        Thread.sleep(3000L)
+        System.exit(0)
+      }
+    }.start()
   }
 
   /** Reset any temporary UI modifications. */

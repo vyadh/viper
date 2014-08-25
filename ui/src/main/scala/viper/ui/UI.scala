@@ -108,8 +108,8 @@ trait UI extends Prefs {
   }
 
   private def closing() {
-    close()
     storePrefs()
+    close()
   }
 
 }
