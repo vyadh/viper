@@ -1,5 +1,7 @@
 package viper.ui
 
+import java.util.concurrent.LinkedBlockingQueue
+
 import ca.odell.glazedlists.matchers.TextMatcherEditor
 import viper.domain.Record
 
@@ -7,6 +9,9 @@ trait RecordFiltering {
 
   /** Cache of previous command, to ensure the new filter operation is necessary. */
   var previous = ""
+  
+  /** Command queue for filtering commands. */
+  val filterCommands = new LinkedBlockingQueue[AnyRef]
 
   /** Command to do filtering. */
   private case class Filter(
@@ -19,27 +24,28 @@ trait RecordFiltering {
 
 
   def filter(expression: String, filterer: TextMatcherEditor[Record], whenDone: () => Unit) {
-    filterActor ! new Filter(expression, filterer, whenDone)
+    filterCommands.add(new Filter(expression, filterer, whenDone))
   }
 
   def closeFiltering() {
-    filterActor ! ExitFiltering
+    filterCommands.add(ExitFiltering)
   }
 
 
   /** Actor helps avoid blocking UI thread when filtering large amount of data. */
-  private val filterActor = new scala.actors.Actor {
-    def act() {
-      while (true) {
-        receive {
+  private val filterThread = new Thread("filter") {
+    override def run(): Unit = {
+      var finished = false
+      while (!finished) {
+        filterCommands.take() match {
           case command: Filter => {
-            // Only execute commands if there is nothing else in the mailbox
+            // Only execute commands if there is nothing else in the queue
             // This has the disadvantage that it will always do at least two work items (first and last)
-            if (mailboxSize == 0) {
+            if (filterCommands.isEmpty) {
               filterInThread(command)
             }
           }
-          case ExitFiltering => exit()
+          case ExitFiltering => finished = true
         }
       }
     }
