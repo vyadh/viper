@@ -17,6 +17,8 @@ scalacOptions in ThisBuild ++= Seq(
   "-feature"
 )
 
+//javacOptions ++= Seq("-target", "1.5")
+
 mainClass in (Compile, run) := Some("viper.Viper")
 
 mainClass in (Compile, packageBin) := Some("viper.Viper")
