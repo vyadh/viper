@@ -71,7 +71,7 @@ trait UI extends Prefs {
     defaults.put(key, font)
   }
 
-  private def initFrame() {
+  def initFrame() {
     setTitle(name)
     registerPrefs(name, this, new Dimension(1000, 600))
     setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE)

@@ -34,6 +34,11 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   val main = init()
 
 
+  override def initFrame() {
+    super.initFrame()
+    setIconImage(iconToImage(iconSVG("viper", 16)))
+  }
+
   def close() {
     resetUI()
     closeFiltering()

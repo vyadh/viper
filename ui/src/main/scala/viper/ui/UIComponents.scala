@@ -366,6 +366,21 @@ trait UIComponents {
     IconCache.load(key, size, stream)
   }
 
+  def iconToImage(icon: Icon): Image = icon match {
+    case icon: ImageIcon => icon.getImage
+    case icon => {
+      val w = icon.getIconWidth
+      val h = icon.getIconHeight
+      val ge = GraphicsEnvironment.getLocalGraphicsEnvironment
+      val gc = ge.getDefaultScreenDevice.getDefaultConfiguration
+      val image = gc.createCompatibleImage(w, h)
+      val g = image.createGraphics
+      icon.paintIcon(null, g, 0, 0)
+      g.dispose()
+      image
+    }
+  }
+
   /** Tell GL to repaint. */
   def fireUpdate[T](list: EventList[T], item: T) {
     list.set(list.indexOf(item), item)
