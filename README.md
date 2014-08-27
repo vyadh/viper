@@ -15,3 +15,7 @@ Viper is a log viewer designed for tailing log files of different formats.
 * Written for performance with 10,000's log items mind
 * Viewing of log item details, including any exception stack traces
 * Socket-based protocol to allow opening later log files in the same instance
+
+## Screenshot
+
+![Screenshot with one log file open](.github/screenshot.png?raw=true "Example")
