@@ -7,7 +7,8 @@ lazy val defaultSettings = Seq(
   organization := "viper",
   libraryDependencies ++= Seq(
     "net.java.dev.glazedlists" % "glazedlists_java15" % "1.9.0",
-    "com.kitfox.svg" % "svg-salamander" % "1.0"
+    "com.kitfox.svg" % "svg-salamander" % "1.0",
+    "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test"
   )
 )
 

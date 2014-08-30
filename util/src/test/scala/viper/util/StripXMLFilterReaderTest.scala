@@ -17,14 +17,11 @@ package viper.util
 
 import java.io.{Reader, StringReader}
 
-object StripXMLFilterReaderTest {
+import org.scalatest._
 
-  def main(args: Array[String]) {
-    assertStrippedPI()
-    assertStrippedInvalidChars()
-  }
+class StripXMLFilterReaderTest extends FunSuite {
 
-  def assertStrippedPI() {
+  test("stripped PI") {
     assert(process("not modified") == "not modified")
     assert(process("<? removed ?>") == "")
     assert(process("<? removed ?>:end") == ":end")
@@ -32,7 +29,7 @@ object StripXMLFilterReaderTest {
     assert(process("foo <? removed ?> bar") == "foo  bar")
   }
 
-  def assertStrippedInvalidChars() {
+  test("stripped invalid chars") {
     assert(process("foo \u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008 bar") == "foo  bar")
   }
 

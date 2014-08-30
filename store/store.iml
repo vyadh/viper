@@ -36,6 +36,9 @@
     <orderEntry type="library" name="SBT: org.scala-lang:scala-library:2.11.2" level="project" />
     <orderEntry type="library" name="SBT: com.kitfox.svg:svg-salamander:1.0" level="project" />
     <orderEntry type="library" name="SBT: net.java.dev.glazedlists:glazedlists_java15:1.9.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="SBT: org.scala-lang:scala-reflect:2.11.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="SBT: org.scala-lang.modules:scala-xml_2.11:1.0.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="SBT: org.scalatest:scalatest_2.11:2.2.1" level="project" />
   </component>
 </module>
 
