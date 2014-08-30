@@ -15,7 +15,7 @@
  */
 package viper.source.log.jul.xml
 
-import java.io.FileReader
+import java.io.{BufferedReader, FileReader}
 
 import viper.domain.{Record, Subscription, Subscriber}
 import viper.source.log.jul.JULLogRecordPrototype
@@ -25,7 +25,7 @@ class JULXMLLogSubscription(subscriber: Subscriber) extends Subscription(subscri
 
   // todo Re-enable realtime updates, which currently cause problems with file rotations
 //  private val reader = new PersistentFileReader(subscriber.query)
-  private val reader = new FileReader(subscriber.query)
+  private val reader = new BufferedReader(new FileReader(subscriber.query))
 
   def deliver(to: (Seq[Record]) => Unit) {
     val consumer = new JULXMLConsumer(reader, record => to(Seq(record)))
