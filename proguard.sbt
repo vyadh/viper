@@ -5,7 +5,7 @@ proguardSettings
 
 //javaOptions in (Proguard, proguard) := Seq("-Xmx512m")
 
-ProguardKeys.proguardVersion in Proguard := "4.11"
+ProguardKeys.proguardVersion in Proguard := "5.0"
 
 ProguardKeys.options in Proguard ++= Seq(
   // Don't obfuscate, which means a much bigger JAR, but avoids exception on stream dump
