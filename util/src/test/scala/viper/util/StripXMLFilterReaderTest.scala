@@ -21,12 +21,22 @@ import org.scalatest._
 
 class StripXMLFilterReaderTest extends FunSuite {
 
-  test("stripped PI") {
+  test("not modified") {
     assert(process("not modified") == "not modified")
+  }
+
+  test("stripped PI") {
     assert(process("<? removed ?>") == "")
     assert(process("<? removed ?>:end") == ":end")
     assert(process("start:<? removed ?>") == "start:")
     assert(process("foo <? removed ?> bar") == "foo  bar")
+  }
+
+  test("stripped ER") {
+    assert(process("<! removed >") == "")
+    assert(process("<! removed >:end") == ":end")
+    assert(process("start:<! removed >") == "start:")
+    assert(process("foo <! removed > bar") == "foo  bar")
   }
 
   test("stripped invalid chars") {

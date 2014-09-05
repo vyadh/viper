@@ -24,6 +24,8 @@ class StripXMLFilterReader(in: Reader) extends FilterReader(in) {
 
   /** If we are in an XML processing instruction. */
   var inPI = false
+  /** If we are in an XML entity reference. */
+  var inER = false
   /** PI's can legitimately be contained by CDATA. */
   var inCDATA = false //todo <![CDATA[escaped]]>
 
@@ -47,11 +49,17 @@ class StripXMLFilterReader(in: Reader) extends FilterReader(in) {
       var last = from
       var i = from
       while (i < from + count) {
-        if (!inPI) {
+        if (!inPI && !inER) {
 
           // Check for PI
           if (containsAt(cbuf, "<?", i)) {
             inPI = true
+            i += 1
+          }
+
+          // Check for ER
+          else if (containsAt(cbuf, "<!", i)) {
+            inER = true
             i += 1
           }
 
@@ -68,11 +76,14 @@ class StripXMLFilterReader(in: Reader) extends FilterReader(in) {
         }
 
         // Currently within PI, so check for end
-        else {
-          if (containsAt(cbuf, "?>", i)) {
-            inPI = false
-            i += 1
-          }
+        else if (inPI && containsAt(cbuf, "?>", i)) {
+          inPI = false
+          i += 1
+        }
+
+        // Currently within ER, so check for end
+        else if (inER && containsAt(cbuf, ">", i)) {
+          inER = false
         }
 
         i += 1
