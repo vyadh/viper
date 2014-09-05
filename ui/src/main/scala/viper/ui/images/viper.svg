@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--
-  ~ Copyright 2012-2014 Kieron Wilkinson.
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
@@ -24,14 +8,10 @@
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
    width="640.13745"
    height="640.13745"
-   id="svg2"
-   inkscape:version="0.48.2 r9819"
-   sodipodi:docname="viper.svg">
+   id="svg2">
   <defs
      id="defs4">
     <linearGradient
@@ -103,8 +83,8 @@
        id="radialGradient3857"
        xlink:href="#linearGradient3791"
        gradientUnits="userSpaceOnUse"
-       spreadMethod="pad"
-       gradientTransform="translate(-326.24922,408.96349)" />
+       gradientTransform="translate(-326.24922,408.96349)"
+       spreadMethod="pad" />
   </defs>
   <metadata
      id="metadata7">
@@ -114,7 +94,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -129,7 +109,7 @@
        x="41.673294"
        y="172.38463"
        id="rect3969"
-       style="opacity:0.92000002000000003;fill:#00ad22;fill-opacity:1;stroke:none" />
+       style="opacity:0.92000002;fill:#00ad22;fill-opacity:1;stroke:none" />
     <path
        d="m 459.99999,502.36218 a 95.714287,95.714287 0 1 1 -191.42857,0 95.714287,95.714287 0 1 1 191.42857,0 z"
        transform="matrix(2.5970149,0,0,2.5970149,-583.19827,-809.42275)"
@@ -143,12 +123,10 @@
     <path
        d="m 419.28572,495.22513 a 52.714287,213.7085 0 1 1 -105.42857,0 52.714287,213.7085 0 1 1 105.42857,0 z"
        id="path3763"
-       style="fill:#000000;fill-opacity:1"
-       inkscape:connector-curvature="0" />
+       style="fill:#000000;fill-opacity:1" />
     <path
        d="m 613.7508,497.03996 a 250.00001,250.00001 0 0 1 -500.00002,0 250.00001,250.00001 0 1 1 500.00002,0 z"
        id="path3827"
-       style="opacity:0.7;fill:url(#radialGradient3857);fill-opacity:1;stroke:none"
-       inkscape:connector-curvature="0" />
+       style="opacity:0.7;fill:url(#radialGradient3857);fill-opacity:1;stroke:none" />
   </g>
 </svg>

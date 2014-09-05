@@ -3,6 +3,10 @@
     <module2copyright>
       <element module="All" copyright="Viper Apache License" />
     </module2copyright>
+    <LanguageOptions name="XML">
+      <option name="fileTypeOverride" value="1" />
+      <option name="prefixLines" value="false" />
+    </LanguageOptions>
     <LanguageOptions name="__TEMPLATE__">
       <option name="addBlankAfter" value="false" />
     </LanguageOptions>
