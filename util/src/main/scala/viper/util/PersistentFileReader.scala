@@ -24,7 +24,7 @@ import java.io._
  */
 class PersistentFileReader(path: String) extends Reader {
 
-  val waitTime = 1000L
+  val waitTime = 500L
   val file = new File(path)
   var size = 0L
   var reader: Reader = null

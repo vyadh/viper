@@ -30,6 +30,8 @@ class LogFileGenerator(name: String, limit: Int, count: Int) {
   val logger = {
     val l = Logger.getLogger("generated")
     l.addHandler(fileHandler)
+    l.setLevel(Level.ALL)
+    l.getHandlers.foreach(_.setLevel(Level.ALL))
     l
   }
 
@@ -58,11 +60,12 @@ class LogFileGenerator(name: String, limit: Int, count: Int) {
 object LogFileGenerator {
 
   def main(args: Array[String]) {
-    val fileGenerator = new LogFileGenerator("file", 50 * 1024, 10)
+    val fileGenerator = new LogFileGenerator("file", 256 * 1024, 10)
 
     val logger = fileGenerator.logger
-    for (_ <- 1 to 10) {
+    for (_ <- 1 to 1000000) {
       fileGenerator.logRandom()
+      Thread.sleep(fileGenerator.messages.random.nextInt(500))
     }
 
 //    generator.close()

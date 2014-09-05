@@ -33,12 +33,12 @@ class LogRecordGenerator(seed: Long) {
   
   val levelInfos = Array(
     LevelInfo(SEVERE,  0.05, "An error occurred"),
-    LevelInfo(WARNING, 0.05, "There was a problem"),
+    LevelInfo(WARNING, 0.10, "There was a problem"),
     LevelInfo(INFO,    0.40, "Now"),
-    LevelInfo(CONFIG,  0.15, "Preparing for"),
+    LevelInfo(CONFIG,  0.02, "Preparing for"),
     LevelInfo(FINE,    0.15, "Prepare"),
-    LevelInfo(FINER,   0.05, "Examine"),
-    LevelInfo(FINEST,  0.05, "Debug for")
+    LevelInfo(FINER,   0.13, "Examine"),
+    LevelInfo(FINEST,  0.15, "Debug for")
   )
 
   val messages = Array(
@@ -78,8 +78,8 @@ class LogRecordGenerator(seed: Long) {
 
   def nextException(level: Level) = level match {
     case SEVERE => if (random.nextDouble() <= 0.6) Some(exception) else None
-    case WARNING => if (random.nextDouble() < 0.2) Some(exception) else None
-    case _ => if (random.nextDouble() < 0.05) Some(exception) else None
+    case WARNING => if (random.nextDouble() <= 0.4) Some(exception) else None
+    case _ => if (random.nextDouble() <= 0.05) Some(exception) else None
   }
 
   lazy val exception = new Exception("An unknown error occurred")
