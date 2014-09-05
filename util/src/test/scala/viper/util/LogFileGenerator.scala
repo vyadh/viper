@@ -15,21 +15,57 @@
  */
 package viper.util
 
-import java.util.logging.{LogManager, Level, XMLFormatter, Logger}
+import java.io.File
+import java.util.logging._
+
+/** Log file generation for testing. */
+class LogFileGenerator(name: String, limit: Int, count: Int) {
+
+  def tmpDir = new File(System.getProperty("java.io.tmpdir"), "viper")
+  def pattern = new File(tmpDir, name + "_%g.log").getAbsolutePath
+  def file0 = pattern.replace("%g", "0")
+
+  val messages = new LogRecordGenerator
+
+  val logger = {
+    val l = Logger.getLogger("generated")
+    l.addHandler(fileHandler)
+    l
+  }
+
+  def fileHandler: Handler = {
+    tmpDir.mkdirs()
+    val h = new FileHandler(pattern, limit, count, false)
+    h.setFormatter(new XMLFormatter)
+    h
+  }
+
+  def logRandom(): Unit = {
+    val (level, message, exception) = messages.next()
+    exception match {
+      case Some(e) => logger.log(level, message, e)
+      case None => logger.log(level, message)
+    }
+  }
+
+  def close(): Unit = {
+    tmpDir.listFiles().foreach(_.delete())
+    tmpDir.delete()
+  }
+
+}
 
 object LogFileGenerator {
 
   def main(args: Array[String]) {
-    val manager: LogManager = LogManager.getLogManager
-    val names = manager.getLoggerNames
-    while (names.hasMoreElements) {
-      val l = manager.getLogger(names.nextElement())
-      l.getHandlers.foreach(_.setFormatter(new XMLFormatter))
+    val fileGenerator = new LogFileGenerator("file", 50 * 1024, 10)
+
+    val logger = fileGenerator.logger
+    for (_ <- 1 to 10) {
+      fileGenerator.logRandom()
     }
 
-    val logger = Logger.getLogger("mylogger")
-    logger.log(Level.WARNING, "normal message")
-    logger.log(Level.SEVERE, "my message", new IllegalStateException("my exception", new Exception("my cause")))
+//    generator.close()
   }
 
 }
