@@ -15,35 +15,64 @@
  */
 package viper.source.log.jul.xml
 
+import java.util
+import java.util.concurrent.{ BlockingQueue, LinkedBlockingQueue}
+import java.util.concurrent.atomic.AtomicBoolean
+
 import viper.domain.{Record, Subscription, Subscriber}
 import viper.source.log.jul.JULLogRecordPrototype
 import viper.source.log.xml.JULXMLConsumer
 import viper.util.PersistentFileReader
 
+import scala.collection.mutable
+import scala.collection.JavaConversions._
+
 class JULXMLLogSubscription(subscriber: Subscriber) extends Subscription(subscriber, JULLogRecordPrototype) {
 
+  private val running = new AtomicBoolean(true)
   private val reader = new PersistentFileReader(subscriber.query)
+  private val threads = new mutable.ArrayBuffer[Thread]()
 
   def deliver(notify: Seq[Record] => Unit) {
-    // todo bunch
-    val consumer = new JULXMLConsumer(reader)
-    val thread = new JULXMLConsumerThread(consumer, notify)
-    thread.start()
-    // todo Shut down thread
+    val buffer = new LinkedBlockingQueue[Record]()
+    val processing = new ProcessingThread(buffer)
+    val delivery = new DeliveryThread(buffer, notify)
+
+    threads ++= Seq(processing, delivery)
+
+    processing.start()
+    delivery.start()
   }
 
   def stop() {
+    running.set(false)
     reader.close()
+    threads.foreach(_.join())
   }
 
-  class JULXMLConsumerThread(consumer: => JULXMLConsumer, notify: Seq[Record] => Unit)
-        extends Thread(subscriber.ref) {
-    
+  class ProcessingThread(buffer: BlockingQueue[Record])
+        extends Thread(subscriber.ref + "-processing") {
+
     override def run() {
-      while (true) { //todo
-        val record = consumer.next()
-        notify(record.toSeq)
-        Thread.`yield`()
+      val consumer = new JULXMLConsumer(reader)
+      while (running.get) {
+        consumer.next().foreach(buffer.put(_))
+      }
+    }
+  }
+
+  class DeliveryThread(buffer: BlockingQueue[Record], notify: Seq[Record] => Unit)
+        extends Thread(subscriber.ref + "-delivery") {
+
+    override def run() {
+      while (running.get) {
+        val records = new util.ArrayList[Record](100)
+        // Obtain all records currently read, and deliver them as a batch
+        buffer.drainTo(records)
+        if (!records.isEmpty) {
+          notify(records.toSeq)
+        }
+        Thread.sleep(100)
       }
     }
   }
