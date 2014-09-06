@@ -21,7 +21,7 @@ import collection.mutable
 import viper.domain._
 import viper.source.log.jul.AbstractJULConsumer
 
-class JULXMLConsumer(reader: => Reader, notify: Record => Unit) extends AbstractJULConsumer(notify) {
+class JULXMLConsumer(reader: => Reader) extends AbstractJULConsumer {
 
   /*
   <record>
@@ -50,28 +50,44 @@ class JULXMLConsumer(reader: => Reader, notify: Record => Unit) extends Abstract
     "record", "millis", "sequence", "level", "message",
     "exception", "frame", "class", "method", "line")
 
+  /** Temporary storage for node values, needs to be cleared after each record. */
+  lazy val map = new mutable.HashMap[String, String]()
+  /** Strip characters that would make XML document invalid on file rolling. */
+  lazy val filteredReader = new StripXMLFilterReader(reader)
+  /** Reading nodes from the stream. */
+  lazy val nodeReader = new XMLNodeReader(filteredReader, interesting)
 
-  def consume() {
-    val filteredReader = new StripXMLFilterReader(reader)
-    val nodeReader = new XMLNodeReader(filteredReader, interesting)
-
-    processAllRecords(nodeReader)
+  def nextExpected(): Record = next() match {
+    case Some(x) => x
+    case None => nextExpected()
   }
 
-  private def processAllRecords(reader: XMLNodeReader) {
-    // Temporary storage for node values, needs to be cleared after each record
-    val map = new mutable.HashMap[String, String]()
+  /**
+   * Read the next available record.
+   * @return the next record, or none if no records are available or ready
+   */
+  def next(): Option[Record] = {
+    var record: Option[Record] = None
+    do {
+      record = nodeReader.next().flatMap(consume(_))
+    } while (record.isEmpty && isProcessingRecord)
 
-    reader.consume(consumer(map, reader))
+    record
   }
 
-  private def consumer(map: mutable.Map[String, String], reader: XMLNodeReader)(node: XMLNode) {
+  private def isProcessingRecord = !map.isEmpty
+
+  private def consume(node: XMLNode): Option[Record] = {
     node match {
-      case EndXMLNode("record", _)   => dispatch(map); map.clear()
-      case EndXMLNode(name, content) => map(name) = content
-      case StartXMLNode("exception") => map("exception") = map.get("exception").getOrElse("") + consumeException(reader)
-      case _ =>
+      case EndXMLNode("record", _)   => val record = parse(map); map.clear(); Some(record)
+      case EndXMLNode(name, content) => map(name) = content; None
+      case StartXMLNode("exception") => map("exception") = accumulateException(); None
+      case _ => None
     }
+  }
+
+  private def accumulateException(): String = {
+    map.get("exception").getOrElse("") + consumeException(nodeReader)
   }
 
   private def consumeException(nodeReader: XMLNodeReader): String = {

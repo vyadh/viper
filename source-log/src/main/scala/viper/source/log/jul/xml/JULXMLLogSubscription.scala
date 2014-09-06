@@ -24,9 +24,10 @@ class JULXMLLogSubscription(subscriber: Subscriber) extends Subscription(subscri
 
   private val reader = new PersistentFileReader(subscriber.query)
 
-  def deliver(to: (Seq[Record]) => Unit) {
-    val consumer = new JULXMLConsumer(reader, record => to(Seq(record)))
-    val thread = new JULXMLConsumerThread(consumer)
+  def deliver(notify: Seq[Record] => Unit) {
+    // todo bunch
+    val consumer = new JULXMLConsumer(reader)
+    val thread = new JULXMLConsumerThread(consumer, notify)
     thread.start()
     // todo Shut down thread
   }
@@ -35,9 +36,15 @@ class JULXMLLogSubscription(subscriber: Subscriber) extends Subscription(subscri
     reader.close()
   }
 
-  class JULXMLConsumerThread(consumer: => JULXMLConsumer) extends Thread {
+  class JULXMLConsumerThread(consumer: => JULXMLConsumer, notify: Seq[Record] => Unit)
+        extends Thread(subscriber.ref) {
+    
     override def run() {
-      consumer.consume()
+      while (true) { //todo
+        val record = consumer.next()
+        notify(record.toSeq)
+        Thread.`yield`()
+      }
     }
   }
 

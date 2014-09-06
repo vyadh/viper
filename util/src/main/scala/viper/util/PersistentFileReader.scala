@@ -77,6 +77,8 @@ class PersistentFileReader(path: String) extends Reader {
 
     while (running) {
       try {
+        // Use of NIO required here to avoid read locks on Windows
+        // https://bugs.openjdk.java.net/browse/JDK-6357433
         return Files.newBufferedReader(file.toPath, Charset.defaultCharset)
       } catch {
         case _: FileNotFoundException => {

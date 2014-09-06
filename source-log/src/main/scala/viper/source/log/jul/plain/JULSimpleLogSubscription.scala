@@ -25,9 +25,11 @@ class JULSimpleLogSubscription(subscriber: Subscriber) extends Subscription(subs
   private val reader = new PersistentFileReader(subscriber.query)
 
   def deliver(to: (Seq[Record]) => Unit) {
-    val consumer = new JULSimpleConsumer(reader, record => to(Seq(record)))
-    val thread = new JULConsumerThread(consumer)
-    thread.start()
+    // todo
+    throw new UnsupportedOperationException("temporarily broken")
+//    val consumer = new JULSimpleConsumer(reader, record => to(Seq(record)))
+//    val thread = new JULConsumerThread(consumer)
+//    thread.start()
   }
 
   def stop() {

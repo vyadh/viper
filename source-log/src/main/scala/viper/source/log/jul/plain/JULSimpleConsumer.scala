@@ -22,7 +22,7 @@ import viper.source.log.jul.AbstractJULConsumer
 import java.text.SimpleDateFormat
 import viper.util.TimeoutTask
 
-class JULSimpleConsumer(reader: => Reader, notify: Record => Unit) extends AbstractJULConsumer(notify) {
+class JULSimpleConsumer(reader: => Reader) extends AbstractJULConsumer {
 
   /*
   Apr 02, 2013 9:58:34 AM viper.util.LogFileGenerator$ main
@@ -129,7 +129,9 @@ class JULSimpleConsumer(reader: => Reader, notify: Record => Unit) extends Abstr
 
   private def indicateNext(map: mutable.Map[String, String]) {
     if (!map.isEmpty) {
-      dispatch(map)
+      //todo
+      throw new UnsupportedOperationException("temporarily broken")
+      //dispatch(map)
     }
 
     // Clean out the map ready for the next record

@@ -18,7 +18,7 @@ package viper.source.log.jul
 import viper.domain._
 import collection.mutable
 
-abstract class AbstractJULConsumer(notify: Record => Unit) {
+abstract class AbstractJULConsumer {
 
   /** Mapping from JUL level onto Severity (which is the same, but anyway). */
   private val severities = Map(
@@ -31,12 +31,7 @@ abstract class AbstractJULConsumer(notify: Record => Unit) {
     "FINEST" -> Finest
   )
 
-  protected def dispatch(map: mutable.Map[String, String]) {
-    val record = parse(map)
-    notify(record)
-  }
-
-  private def parse(map: mutable.Map[String, String]): JULLogRecord = {
+  def parse(map: mutable.Map[String, String]): JULLogRecord = {
     try {
       val millis = map("millis").toLong
       val sequence = map("sequence").toInt

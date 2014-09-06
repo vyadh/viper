@@ -65,7 +65,7 @@ object LogFileGenerator {
     val logger = fileGenerator.logger
     for (_ <- 1 to 1000000) {
       fileGenerator.logRandom()
-      Thread.sleep(fileGenerator.messages.random.nextInt(500))
+      Thread.sleep(fileGenerator.messages.random.nextInt(1500))
     }
 
 //    generator.close()
