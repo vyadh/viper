@@ -48,9 +48,9 @@ class PersistentFileReader(path: String) extends Reader {
       val read = reader.read(cbuf, off, len)
       if (read != -1) {
         return read
+      } else {
+        Thread.sleep(waitTime)
       }
-
-      Thread.sleep(waitTime)
     }
     -1
   }
