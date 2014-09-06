@@ -16,6 +16,8 @@
 package viper.util
 
 import java.io._
+import java.nio.charset.Charset
+import java.nio.file.Files
 
 /**
  * Provides tail-like functionality reading from a file.
@@ -24,7 +26,7 @@ import java.io._
  */
 class PersistentFileReader(path: String) extends Reader {
 
-  val waitTime = 500L
+  val waitTime = 200L
   val file = new File(path)
   var size = 0L
   var reader: Reader = null
@@ -75,7 +77,7 @@ class PersistentFileReader(path: String) extends Reader {
 
     while (running) {
       try {
-        return new FileReader(file)
+        return Files.newBufferedReader(file.toPath, Charset.defaultCharset)
       } catch {
         case _: FileNotFoundException => {
           // Wait a bit for file to be created again
