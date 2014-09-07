@@ -16,9 +16,13 @@
 package viper.source.log.jul
 
 import viper.domain._
-import collection.mutable
 
-abstract class AbstractJULConsumer {
+import scala.collection.mutable
+
+/**
+ * Parsing map properties.
+ */
+object JULLogParser {
 
   /** Mapping from JUL level onto Severity (which is the same, but anyway). */
   private val severities = Map(

@@ -18,10 +18,10 @@ package viper.source.log.regular
 import java.io.{BufferedReader, Reader}
 import collection.mutable
 import viper.domain._
-import viper.source.log.jul.{JULConsumer, AbstractJULConsumer}
+import viper.source.log.jul.{JULLogParser, JULConsumer}
 import java.text.SimpleDateFormat
 
-class JULSimpleConsumer(reader: => Reader) extends AbstractJULConsumer with JULConsumer {
+class JULSimpleConsumer(reader: => Reader) extends JULConsumer {
 
   /*
   Apr 02, 2013 9:58:34 AM viper.util.LogFileGenerator$ main
@@ -73,7 +73,7 @@ class JULSimpleConsumer(reader: => Reader) extends AbstractJULConsumer with JULC
 
     // Indicate when we have a completed record at the end of the stream
     if (line == null && isPopulated) {
-      return Some(parse(map))
+      return Some(JULLogParser.parse(map))
     }
 
     // We've read something, but we don't quite know if it is the complete record yet
@@ -82,7 +82,7 @@ class JULSimpleConsumer(reader: => Reader) extends AbstractJULConsumer with JULC
 
       // Indicate we have a completed record at the start of the next
       if (isStartOfRecord(read) && isPopulated) {
-        val previous = parse(map)
+        val previous = JULLogParser.parse(map)
         consume(read)
         return Some(previous)
       }

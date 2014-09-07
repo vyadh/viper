@@ -19,9 +19,9 @@ import java.io.Reader
 import viper.util._
 import collection.mutable
 import viper.domain._
-import viper.source.log.jul.{JULConsumer, AbstractJULConsumer}
+import viper.source.log.jul.{JULLogParser, JULConsumer}
 
-class JULXMLConsumer(reader: => Reader) extends AbstractJULConsumer with JULConsumer {
+class JULXMLConsumer(reader: => Reader) extends JULConsumer {
 
   /*
   <record>
@@ -79,7 +79,7 @@ class JULXMLConsumer(reader: => Reader) extends AbstractJULConsumer with JULCons
 
   private def consume(node: XMLNode): Option[Record] = {
     node match {
-      case EndXMLNode("record", _)   => val record = parse(map); map.clear(); Some(record)
+      case EndXMLNode("record", _)   => val record = JULLogParser.parse(map); map.clear(); Some(record)
       case EndXMLNode(name, content) => map(name) = content; None
       case StartXMLNode("exception") => map("exception") = accumulateException(); None
       case _ => None
