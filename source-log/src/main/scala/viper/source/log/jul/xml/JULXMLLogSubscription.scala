@@ -15,66 +15,35 @@
  */
 package viper.source.log.jul.xml
 
-import java.util
-import java.util.concurrent.{ BlockingQueue, LinkedBlockingQueue}
-import java.util.concurrent.atomic.AtomicBoolean
-
 import viper.domain.{Record, Subscription, Subscriber}
 import viper.source.log.jul.JULLogRecordPrototype
 import viper.source.log.xml.JULXMLConsumer
-import viper.util.PersistentFileReader
-
-import scala.collection.mutable
-import scala.collection.JavaConversions._
+import viper.util.{PersistentFileReader, AsyncChunker}
 
 class JULXMLLogSubscription(subscriber: Subscriber) extends Subscription(subscriber, JULLogRecordPrototype) {
 
-  private val running = new AtomicBoolean(true)
-  private val reader = new PersistentFileReader(subscriber.query)
-  private val threads = new mutable.ArrayBuffer[Thread]()
+  private var session: Session = null
 
   def deliver(notify: Seq[Record] => Unit) {
-    val buffer = new LinkedBlockingQueue[Record]()
-    val processing = new ProcessingThread(buffer)
-    val delivery = new DeliveryThread(buffer, notify)
-
-    threads ++= Seq(processing, delivery)
-
-    processing.start()
-    delivery.start()
+    if (session != null) {
+      throw new IllegalStateException("Subscription already started")
+    }
+    session = new Session(new PersistentFileReader(subscriber.query), notify)
+    session.chunker.start()
   }
 
   def stop() {
-    running.set(false)
-    reader.close()
-    threads.foreach(_.join())
-  }
-
-  class ProcessingThread(buffer: BlockingQueue[Record])
-        extends Thread(subscriber.ref + "-processing") {
-
-    override def run() {
-      val consumer = new JULXMLConsumer(reader)
-      while (running.get) {
-        consumer.next().foreach(buffer.put(_))
-      }
+    if (session != null) {
+      session.reader.close()
+      session.chunker.stop()
     }
   }
 
-  class DeliveryThread(buffer: BlockingQueue[Record], notify: Seq[Record] => Unit)
-        extends Thread(subscriber.ref + "-delivery") {
+  def process() = session.consumer.next()
 
-    override def run() {
-      while (running.get) {
-        val records = new util.ArrayList[Record](100)
-        // Obtain all records currently read, and deliver them as a batch
-        buffer.drainTo(records)
-        if (!records.isEmpty) {
-          notify(records.toSeq)
-        }
-        Thread.sleep(100)
-      }
-    }
+  class Session(val reader: PersistentFileReader, notify: Seq[Record] => Unit) {
+    val consumer = new JULXMLConsumer(reader)
+    val chunker = new AsyncChunker[Record](subscriber.ref, 100, process, notify)
   }
 
 }

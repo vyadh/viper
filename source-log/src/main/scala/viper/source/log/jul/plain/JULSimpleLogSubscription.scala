@@ -17,31 +17,33 @@ package viper.source.log.jul.plain
 
 import viper.domain.{Record, Subscription, Subscriber}
 import viper.source.log.jul.JULLogRecordPrototype
-import viper.util.PersistentFileReader
+import viper.util.{AsyncChunker, PersistentFileReader}
 import viper.source.log.regular.JULSimpleConsumer
 
 class JULSimpleLogSubscription(subscriber: Subscriber) extends Subscription(subscriber, JULLogRecordPrototype) {
 
-  private val reader = new PersistentFileReader(subscriber.query)
-  private val consumer = new JULSimpleConsumer(reader)
+  private var session: Session = null
 
-  def deliver(notify: (Seq[Record]) => Unit) {
-    val thread = new JULConsumerThread(consumer, notify)
-    thread.start()
+  def deliver(notify: Seq[Record] => Unit) {
+    if (session != null) {
+      throw new IllegalStateException("Subscription already started")
+    }
+    session = new Session(new PersistentFileReader(subscriber.query), notify)
+    session.chunker.start()
   }
 
   def stop() {
-    reader.close()
-    // todo finish thread
+    if (session != null) {
+      session.reader.close()
+      session.chunker.stop()
+    }
   }
 
-  class JULConsumerThread(consumer: => JULSimpleConsumer, notify: (Seq[Record]) => Unit) extends Thread {
-    override def run() {
-      while (true) {
-        val next = consumer.next()
-        notify(next.toSeq)
-      }
-    }
+  def process() = session.consumer.next()
+
+  class Session(val reader: PersistentFileReader, notify: Seq[Record] => Unit) {
+    val consumer = new JULSimpleConsumer(reader)
+    val chunker = new AsyncChunker[Record](subscriber.ref, 100, process, notify)
   }
 
 }
