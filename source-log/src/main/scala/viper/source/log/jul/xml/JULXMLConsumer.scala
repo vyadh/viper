@@ -19,9 +19,9 @@ import java.io.Reader
 import viper.util._
 import collection.mutable
 import viper.domain._
-import viper.source.log.jul.AbstractJULConsumer
+import viper.source.log.jul.{JULConsumer, AbstractJULConsumer}
 
-class JULXMLConsumer(reader: => Reader) extends AbstractJULConsumer {
+class JULXMLConsumer(reader: => Reader) extends AbstractJULConsumer with JULConsumer {
 
   /*
   <record>

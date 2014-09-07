@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package viper.source.log.jul.xml
+package viper.source.log.jul
 
-import java.io.Reader
+import viper.domain.Record
 
-import viper.domain.Subscriber
-import viper.source.log.jul.AbstractJULLogSubscription
-import viper.source.log.xml.JULXMLConsumer
+/**
+ * Represents consumer of JUL events.
+ */
+trait JULConsumer {
 
-class JULXMLLogSubscription(subscriber: Subscriber)
-      extends AbstractJULLogSubscription(subscriber) {
-
-  override def createConsumer(reader: Reader) = new JULXMLConsumer(reader)
+  def next(): Option[Record]
 
 }

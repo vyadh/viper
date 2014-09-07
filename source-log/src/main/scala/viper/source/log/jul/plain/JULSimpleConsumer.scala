@@ -18,10 +18,10 @@ package viper.source.log.regular
 import java.io.{BufferedReader, Reader}
 import collection.mutable
 import viper.domain._
-import viper.source.log.jul.AbstractJULConsumer
+import viper.source.log.jul.{JULConsumer, AbstractJULConsumer}
 import java.text.SimpleDateFormat
 
-class JULSimpleConsumer(reader: => Reader) extends AbstractJULConsumer {
+class JULSimpleConsumer(reader: => Reader) extends AbstractJULConsumer with JULConsumer {
 
   /*
   Apr 02, 2013 9:58:34 AM viper.util.LogFileGenerator$ main

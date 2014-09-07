@@ -15,35 +15,15 @@
  */
 package viper.source.log.jul.plain
 
-import viper.domain.{Record, Subscription, Subscriber}
-import viper.source.log.jul.JULLogRecordPrototype
-import viper.util.{AsyncChunker, PersistentFileReader}
+import java.io.Reader
+
+import viper.domain.Subscriber
+import viper.source.log.jul.AbstractJULLogSubscription
 import viper.source.log.regular.JULSimpleConsumer
 
-class JULSimpleLogSubscription(subscriber: Subscriber) extends Subscription(subscriber, JULLogRecordPrototype) {
+class JULSimpleLogSubscription(subscriber: Subscriber)
+      extends AbstractJULLogSubscription(subscriber) {
 
-  private var session: Session = null
-
-  def deliver(notify: Seq[Record] => Unit) {
-    if (session != null) {
-      throw new IllegalStateException("Subscription already started")
-    }
-    session = new Session(new PersistentFileReader(subscriber.query), notify)
-    session.chunker.start()
-  }
-
-  def stop() {
-    if (session != null) {
-      session.reader.close()
-      session.chunker.stop()
-    }
-  }
-
-  def process() = session.consumer.next()
-
-  class Session(val reader: PersistentFileReader, notify: Seq[Record] => Unit) {
-    val consumer = new JULSimpleConsumer(reader)
-    val chunker = new AsyncChunker[Record](subscriber.ref, 100, process, notify)
-  }
+  override def createConsumer(reader: Reader) = new JULSimpleConsumer(reader)
 
 }
