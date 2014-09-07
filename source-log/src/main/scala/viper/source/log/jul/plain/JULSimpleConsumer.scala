@@ -20,7 +20,6 @@ import collection.mutable
 import viper.domain._
 import viper.source.log.jul.AbstractJULConsumer
 import java.text.SimpleDateFormat
-import viper.util.TimeoutTask
 
 class JULSimpleConsumer(reader: => Reader) extends AbstractJULConsumer {
 
@@ -49,67 +48,80 @@ class JULSimpleConsumer(reader: => Reader) extends AbstractJULConsumer {
   private val LevelMessagePattern = """(FINEST|FINER|FINE|CONFIG|INFO|WARNING|SEVERE): (.+)""".r
 
   /** E.g. Apr 02, 2013 9:58:34 AM */
-  private val dateFormatJava7 = new SimpleDateFormat("MMM dd, yyyy hh:mm:ss aa")
+  private[log] val dateFormatJava7 = new SimpleDateFormat("MMM dd, yyyy hh:mm:ss aa")
   /** E.g. 04-Apr-2013 09:31:43 */
-  private val dateFormatJava6 = new SimpleDateFormat("dd-MMM-yyyy hh:mm:ss")
+  private[log] val dateFormatJava6 = new SimpleDateFormat("dd-MMM-yyyy hh:mm:ss")
 
+  private lazy val buffer = new BufferedReader(reader)
+  /** Temporary storage for node values, needs to be cleared after each record. */
+  private val map = new mutable.HashMap[String, String]()
   /** Implicit sequence value, used to order events with the same time. */
   private var sequence = 0
 
 
-  def consume() {
-    val bufferedReader = new BufferedReader(reader)
-
-    processAllRecords(bufferedReader)
+  def nextExpected(): Record = next() match {
+    case Some(x) => x
+    case None => nextExpected()
   }
 
-  private def processAllRecords(reader: BufferedReader) {
-    // Temporary storage for node values, needs to be cleared after each record
-    val map = new mutable.HashMap[String, String]()
+  /**
+   * Read the next available record.
+   * @return the next record, or none if no records are available or ready
+   */
+  def next(): Option[Record] = {
+    val line = buffer.readLine()
 
-    // Action to take when we want to dispatch the next event
-    val next = () => indicateNext(map)
+    // Indicate when we have a completed record at the end of the stream
+    if (line == null && isPopulated) {
+      return Some(parse(map))
+    }
 
-    // Create fallback, so if event is not sent within 2 secs, it's likely the last one, so send on timeout
-    val timeout = new TimeoutTask(1000)(next())
+    // We've read something, but we don't quite know if it is the complete record yet
+    if (line != null) {
+      val read = pull(line)
 
-    try {
+      // Indicate we have a completed record at the start of the next
+      if (isStartOfRecord(read) && isPopulated) {
+        val previous = parse(map)
+        consume(read)
+        return Some(previous)
+      }
+      // Consume the current line information
+      else {
+        consume(read)
+        // This might be the end, but we can't tell
+      }
+    }
 
-      val consumption = consumer(map, timeout, _: String)
+    None
+  }
 
-      // Consume all lines
-      var line: String = null
-      do {
-        line = reader.readLine()
-        consumption(line)
-      } while (line != null)
+  private def isStartOfRecord(read: Read) = read.isInstanceOf[TimeHeader]
 
-    } finally {
-      // No longer need the timeout
-      timeout.close()
+  private def isPopulated = map.contains("millis") && map.contains("message")
+
+  private def pull(line: String): Read = {
+    line match {
+      case DateTimePatternJava7(dateStr) => TimeHeader(millisJava7(dateStr))
+      case DateTimePatternJava6(dateStr) => TimeHeader(millisJava6(dateStr))
+      case LevelMessagePattern(level, message) => LevelMessage(level, message)
+      case exceptionLine: String => Message(exceptionLine)
     }
   }
 
-  private def consumer(map: mutable.Map[String, String], timeout: TimeoutTask, line: String) {
-    line match {
-      case DateTimePatternJava7(dateStr) => {
-        timeout.stage()
-        map.put("millis", millisJava7(dateStr))
+  private def consume(read: Read) {
+    read match {
+      case TimeHeader(millis) => {
+        map.clear()
+        map.put("millis", millis)
         map.put("sequence", nextSequence())
       }
-      case DateTimePatternJava6(dateStr) => {
-        timeout.stage()
-        map.put("millis", millisJava6(dateStr))
-        map.put("sequence", nextSequence())
-      }
-      case LevelMessagePattern(level, message) => {
-        timeout.delay()
+      case LevelMessage(level, message) => {
         map.put("level", level)
         map.put("message", message)
       }
-      case exceptionLine: String => {
-        timeout.delay()
-        map.put("message", map("message") + " \n" + exceptionLine)
+      case Message(message) => {
+        map.put("message", map.get("message").map(_ + " \n").getOrElse("") + message)
       }
     }
   }
@@ -127,15 +139,12 @@ class JULSimpleConsumer(reader: => Reader) extends AbstractJULConsumer {
     sequence.toString
   }
 
-  private def indicateNext(map: mutable.Map[String, String]) {
-    if (!map.isEmpty) {
-      //todo
-      throw new UnsupportedOperationException("temporarily broken")
-      //dispatch(map)
-    }
-
-    // Clean out the map ready for the next record
-    map.clear()
-  }
+  sealed trait Read
+  /** When we know we just read the first line of a record. */
+  case class TimeHeader(millis: String) extends Read
+  /** When we don't know for sure if there is more of the record or not. */
+  case class LevelMessage(level: String, message: String) extends Read
+  /** When we don't know for sure if there is more of the record or not. */
+  case class Message(message: String) extends Read
 
 }

@@ -38,7 +38,7 @@ class JULXMLConsumerTest extends FunSuite with Matchers {
     }
   }
 
-  test("stream with full XML record returns right details") {
+  test("stream with full record returns right details") {
     val xml =
       """
         |<record>

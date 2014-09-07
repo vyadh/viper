@@ -23,22 +23,24 @@ import viper.source.log.regular.JULSimpleConsumer
 class JULSimpleLogSubscription(subscriber: Subscriber) extends Subscription(subscriber, JULLogRecordPrototype) {
 
   private val reader = new PersistentFileReader(subscriber.query)
+  private val consumer = new JULSimpleConsumer(reader)
 
-  def deliver(to: (Seq[Record]) => Unit) {
-    // todo
-    throw new UnsupportedOperationException("temporarily broken")
-//    val consumer = new JULSimpleConsumer(reader, record => to(Seq(record)))
-//    val thread = new JULConsumerThread(consumer)
-//    thread.start()
+  def deliver(notify: (Seq[Record]) => Unit) {
+    val thread = new JULConsumerThread(consumer, notify)
+    thread.start()
   }
 
   def stop() {
     reader.close()
+    // todo finish thread
   }
 
-  class JULConsumerThread(consumer: => JULSimpleConsumer) extends Thread {
+  class JULConsumerThread(consumer: => JULSimpleConsumer, notify: (Seq[Record]) => Unit) extends Thread {
     override def run() {
-      consumer.consume()
+      while (true) {
+        val next = consumer.next()
+        notify(next.toSeq)
+      }
     }
   }
 
