@@ -17,11 +17,13 @@ package viper.util
 
 import java.io.Reader
 import javax.xml.stream._
-import scala.Some
+import com.ctc.wstx.api.WstxInputProperties
+import com.ctc.wstx.stax.WstxInputFactory
 import XMLStreamConstants._
 
 class XMLNodeReader(reader: Reader, interesting: String => Boolean) {
 
+  val xmlInputFactory = createXMLInputFactory
   val sr = createXMLStreamReader(reader)
   var reading = false
 
@@ -80,8 +82,23 @@ class XMLNodeReader(reader: Reader, interesting: String => Boolean) {
     None
   }
 
+  def createXMLInputFactory: XMLInputFactory = {
+    import XMLInputFactory._
+    import WstxInputProperties._
+
+    val factory = new WstxInputFactory
+    factory.configureForSpeed()
+    factory.getConfig.doSupportDTDs(false)
+    factory.getConfig.doSupportDTDPP(false)
+    factory.setProperty(SUPPORT_DTD, false)
+    factory.setProperty(IS_VALIDATING, false)
+    factory.setProperty(IS_SUPPORTING_EXTERNAL_ENTITIES, false)
+    factory.setProperty(P_INPUT_PARSING_MODE, PARSING_MODE_FRAGMENT)
+    factory
+  }
+
   def createXMLStreamReader(reader: Reader): XMLStreamReader = {
-    XMLInputFactory.newInstance.createXMLStreamReader(reader)
+    xmlInputFactory.createXMLStreamReader(reader)
   }
 
 }

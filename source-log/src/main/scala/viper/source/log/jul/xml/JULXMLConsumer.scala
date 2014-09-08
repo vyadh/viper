@@ -15,7 +15,7 @@
  */
 package viper.source.log.xml
 
-import java.io.Reader
+import java.io.{BufferedReader, Reader}
 import viper.util._
 import collection.mutable
 import viper.domain._
@@ -53,7 +53,7 @@ class JULXMLConsumer(reader: => Reader) extends JULConsumer {
   /** Temporary storage for node values, needs to be cleared after each record. */
   lazy val map = new mutable.HashMap[String, String]()
   /** Strip characters that would make XML document invalid on file rolling. */
-  lazy val filteredReader = new StripXMLFilterReader(reader)
+  lazy val filteredReader = new StripXMLFilterReader(new BufferedReader(reader))
   /** Reading nodes from the stream. */
   lazy val nodeReader = new XMLNodeReader(filteredReader, interesting)
 

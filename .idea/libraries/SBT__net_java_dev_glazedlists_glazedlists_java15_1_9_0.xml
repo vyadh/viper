@@ -4,6 +4,8 @@
       <root url="jar://$USER_HOME$/.ivy2/cache/net.java.dev.glazedlists/glazedlists_java15/jars/glazedlists_java15-1.9.0.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/net.java.dev.glazedlists/glazedlists_java15/srcs/glazedlists_java15-1.9.0-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

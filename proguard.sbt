@@ -49,7 +49,10 @@ ProguardKeys.options in Proguard ++= Seq(
   "-keep class ca.odell.glazedlists.** { public protected static *;}",
   "-dontwarn ca.odell.glazedlists.**",
   // SVG Salamander warns on some Ant integration classes, just ignore
-  "-dontwarn com.kitfox.svg.**"
+  "-dontwarn com.kitfox.svg.**",
+  // Woodstox
+  "-dontwarn com.ctc.wstx.**",
+  "-dontwarn com.ctc.osgi.**"
 )
 
 // Specify library JARs, different for OSs and JVMs

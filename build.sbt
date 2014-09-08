@@ -6,9 +6,10 @@ lazy val defaultSettings = Seq(
   version := "1.1",
   organization := "viper",
   libraryDependencies ++= Seq(
-    "net.java.dev.glazedlists" % "glazedlists_java15" % "1.9.0",
+    "net.java.dev.glazedlists" % "glazedlists_java15" % "1.9.0" withSources(),
     "com.kitfox.svg" % "svg-salamander" % "1.0",
-    "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test"
+    "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test" withSources(),
+    "org.codehaus.woodstox" % "woodstox-core-asl" % "4.2.0" exclude("javax.xml.stream", "stax-api") withSources()
   )
 )
 
