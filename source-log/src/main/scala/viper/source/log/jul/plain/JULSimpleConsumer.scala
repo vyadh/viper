@@ -73,7 +73,9 @@ class JULSimpleConsumer(reader: => Reader) extends JULConsumer {
 
     // Indicate when we have a completed record at the end of the stream
     if (line == null && isPopulated) {
-      return Some(JULLogParser.parse(map))
+      val record = Some(JULLogParser.parse(map))
+      map.clear() // Indicate record consumed
+      return record
     }
 
     // We've read something, but we don't quite know if it is the complete record yet

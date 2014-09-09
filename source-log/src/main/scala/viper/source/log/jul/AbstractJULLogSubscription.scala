@@ -32,16 +32,18 @@ abstract class AbstractJULLogSubscription(subscriber: Subscriber)
     if (session != null) {
       throw new IllegalStateException("Subscription already started")
     }
-    session = new Session(new PersistentFileReader(subscriber.query), notify)
+    session = new Session(createFileReader(subscriber.query), notify)
     session.chunker.start()
   }
-
+  
   def stop() {
     if (session != null) {
       session.reader.close()
       session.chunker.stop()
     }
   }
+
+  def createFileReader(path: String): PersistentFileReader
 
   def process(): Option[Record] = session.consumer.next()
 

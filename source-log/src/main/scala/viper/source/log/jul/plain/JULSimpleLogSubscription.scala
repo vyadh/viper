@@ -20,10 +20,13 @@ import java.io.Reader
 import viper.domain.Subscriber
 import viper.source.log.jul.AbstractJULLogSubscription
 import viper.source.log.regular.JULSimpleConsumer
+import viper.util.PersistentFileReader
 
 class JULSimpleLogSubscription(subscriber: Subscriber)
       extends AbstractJULLogSubscription(subscriber) {
 
   override def createConsumer(reader: Reader) = new JULSimpleConsumer(reader)
+
+  override def createFileReader(path: String) = new PersistentFileReader(path, blockOnEOF = false)
 
 }

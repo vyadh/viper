@@ -21,12 +21,12 @@ import java.nio.file.Files
 
 /**
  * Provides tail-like functionality reading from a file.
- * Detects if the file has been overwritten, and if so, indicates the end of the file has been
- * reached.
+ * Detects if the file has been overwritten, and if so, indicates the end of the
+ * file has been reached.
  */
-class PersistentFileReader(path: String) extends Reader {
+class PersistentFileReader(path: String, blockOnEOF: Boolean) extends Reader {
 
-  val waitTime = 200L
+  val waitTime = 100L
   val file = new File(path)
   var size = 0L
   var reader: Reader = null
@@ -46,10 +46,10 @@ class PersistentFileReader(path: String) extends Reader {
       size = file.length()
 
       val read = reader.read(cbuf, off, len)
-      if (read != -1) {
-        return read
-      } else {
+      if (read == -1 && blockOnEOF) {
         Thread.sleep(waitTime)
+      } else {
+        return read
       }
     }
     -1
