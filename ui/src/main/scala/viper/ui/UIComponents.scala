@@ -351,6 +351,10 @@ trait UIComponents {
     setLineWrap(true)
   }
 
+  class ToggleButton(name: String, action: Boolean => Unit) extends JToggleButton(name) {
+    setAction(new BasicAction(name, action(isSelected)))
+  }
+
   class EmptyBorder(size: Int) extends javax.swing.border.EmptyBorder(size, size, size, size)
 
   class BasicAction(name: String, action: => Unit) extends AbstractAction(name) {

@@ -133,6 +133,8 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
     add(Actions.markUnread)
     add(Actions.delete)
     addFiller()
+    add(new ToggleButton("Freeze", enable => println(enable)))
+    addSeparator()
     add(severityLevel.label)
     add(severityLevel)
     addSeparator()
