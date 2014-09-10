@@ -9,7 +9,7 @@ Viper is a log viewer designed for tailing log files of different formats.
 * Tail multiple log files concurrently
 * Support for common java.util.logging XML and text format (more to come)
 * Support for uninterrupted reading from log files that rotate without application impact
-** No file locks taken, even on Windows
+  * No file locks taken, even on Windows
 * Highlighting of log entries based on severity
 * Realtime filtering based on log item severity
 * Realtime filtering using convenient text search (e.g. "12:45 warning user dave login") 
