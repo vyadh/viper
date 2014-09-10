@@ -208,6 +208,18 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
   }
 
   private def deleteItem() {
+    if (main.table.isFocusOwner) {
+      deleteRecord()
+    }
+    else if (main.subscriptionList.isFocusOwner &&
+          main.subscriptionList.getModel.getSize > 1) {
+      for (subscribed <- main.subscriptionList.selected) {
+        removeSubscription(subscribed)
+      }
+    }
+  }
+
+  private def deleteRecord(): Unit = {
     // Need to mark items as read to ensure subscription read counts updated
     for (record <- main.table.selected) {
       markReadUnread(record, activeView.subscribed, true)
@@ -224,32 +236,34 @@ class ViperFrame(val name: String) extends JFrame(name) with UI with ViperCompon
 
   def hasSubscriber(subscriber: Subscriber) = viewObjectsBySubscriber.contains(subscriber)
 
-  def removeSubscription(subscriber: Subscriber) {
-    val view = viewObjectsBySubscriber.remove(subscriber)
+  def removeSubscription(subscribed: Subscribed) {
+    main.subscriptionList.selectFirst()
+
+    val view = viewObjectsBySubscriber.remove(subscribed.subscriber)
     for (v <- view) {
       v.subscription.stop()
       v.eventLists.foreach { _.dispose() }
     }
-
-    subscriberEventList.remove(subscriber)
-    // todo and if it is the currently viewed subscription?
+    subscriberEventList.remove(subscribed)
   }
 
   def removeSubscriptions() {
-    for (subscriber <- viewObjectsBySubscriber.keys) {
-      removeSubscription(subscriber)
+    for (subscription <- main.subscriptionList.items) {
+      removeSubscription(subscription)
     }
   }
 
   def addSubscription(subscription: Subscription) {
-    val vos = viewObjects(subscription)
-    viewObjectsBySubscriber.put(subscription.subscriber, vos)
-    subscriberEventList.add(vos.subscribed)
+    if (!hasSubscriber(subscription.subscriber)) {
+      val vos = viewObjects(subscription)
+      viewObjectsBySubscriber.put(subscription.subscriber, vos)
+      subscriberEventList.add(vos.subscribed)
 
-    // If this is the first one, make it active
-    if (subscriberEventList.size == 1) {
-      EQ.later {
-        main.subscriptionList.setSelectedIndex(0)
+      // If this is the first one, make it active
+      if (subscriberEventList.size == 1) {
+        EQ.later {
+          main.subscriptionList.setSelectedIndex(0)
+        }
       }
     }
   }

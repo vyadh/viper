@@ -21,7 +21,7 @@ import javax.swing.event._
 import java.awt._
 import ca.odell.glazedlists.{BasicEventList, SortedList, FilterList, EventList}
 import ca.odell.glazedlists.swing.{EventSelectionModel, TableComparatorChooser, EventTableModel, EventListModel}
-import collection.mutable
+import scala.collection.{mutable, JavaConversions}
 import ca.odell.glazedlists.gui.{AbstractTableComparatorChooser, TableFormat}
 import java.awt.event.ActionEvent
 import text.DefaultCaret
@@ -225,6 +225,12 @@ trait UIComponents {
       val index = eventList.indexOf(t)
       selectionModel.setSelectionInterval(index, index)
     }
+
+    def selectFirst(): Unit = {
+      selected = eventList.get(0)
+    }
+
+    def items: Seq[T] = JavaConversions.asScalaBuffer(eventList).toList
 
     setSelectionModel(selectionModel)
     setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
