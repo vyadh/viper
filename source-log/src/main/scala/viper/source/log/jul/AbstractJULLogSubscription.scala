@@ -51,7 +51,7 @@ abstract class AbstractJULLogSubscription(subscriber: Subscriber)
 
   class Session(val reader: PersistentFileReader, notify: Seq[Record] => Unit) {
     val consumer = createConsumer(reader)
-    val chunker = new AsyncChunker[Record](subscriber.ref, 100, process, notify)
+    val chunker = new AsyncChunker[Record](subscriber.ref, 200, process, notify)
   }
 
 }

@@ -26,7 +26,7 @@ import java.nio.file.Files
  */
 class PersistentFileReader(path: String, blockOnEOF: Boolean) extends Reader {
 
-  val waitTime = 100L
+  val waitTime = 300L
   val file = new File(path)
   var size = 0L
   var reader: Reader = null
