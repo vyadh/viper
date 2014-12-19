@@ -2,7 +2,7 @@ import _root_.sbt.Keys._
 import _root_.sbt._
 
 lazy val defaultSettings = Seq(
-  scalaVersion := "2.11.2",
+  scalaVersion := "2.11.4",
   version := "1.1",
   organization := "viper",
   libraryDependencies ++= Seq(
