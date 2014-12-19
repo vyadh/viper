@@ -13,25 +13,23 @@ ProguardKeys.options in Proguard ++= Seq(
   // Optimise doesn't work with Glazed Lists
   "-dontoptimize",
   "-dontwarn scala.**",
+  "-dontwarn viper.ui.UI$$anonfun$initLookAndFeel$1",
+  "-dontwarn viper.ui.UI$$anonfun$initLookAndFeel$2",
   "-dontskipnonpubliclibraryclasses",
   "-dontskipnonpubliclibraryclassmembers",
   "-dontnote scala.Enumeration",
   "-keep class * implements org.xml.sax.EntityResolver",
+  "-keepattributes InnerClasses",
+  "-keepattributes Signature",
   "-keepclassmembers class * { ** MODULE$; }",
   """-keepclassmembernames class scala.concurrent.forkjoin.ForkJoinPool {
-    long eventCount;
-    int  workerCounts;
-    int  runControl;
     long ctl;
     long stealCount;
     int plock;
     int indexSeed;
-    java.lang.Object parkBlocker;
   }""",
   """-keepclassmembernames class scala.concurrent.forkjoin.ForkJoinWorkerThread {
-    int base;
-    int sp;
-    int runState;
+    ** MODULE$;
   }""",
   "-keepclassmembernames class scala.concurrent.forkjoin.ForkJoinTask { int status; }",
   "-keepclassmembernames class scala.concurrent.forkjoin.ForkJoinPool$WorkQueue { int qlock; }",
