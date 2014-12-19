@@ -1,5 +1,5 @@
 <component name="libraryTable">
-  <library name="SBT: net.java.dev.glazedlists:glazedlists_java15:1.9.0">
+  <library name="SBT: net.java.dev.glazedlists:glazedlists_java15:1.9.0:jar">
     <CLASSES>
       <root url="jar://$USER_HOME$/.ivy2/cache/net.java.dev.glazedlists/glazedlists_java15/jars/glazedlists_java15-1.9.0.jar!/" />
     </CLASSES>
