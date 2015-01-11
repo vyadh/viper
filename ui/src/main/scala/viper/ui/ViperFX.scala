@@ -29,7 +29,7 @@ class ViperFX extends Application {
     val root: Parent = loader.load()
 
     stage.setTitle("Viper Log Viewer")
-    stage.setScene(new Scene(root, 800, 600))
+    stage.setScene(new Scene(root, 1000, 600))
     stage.show()
 
     begin(loader.getController())

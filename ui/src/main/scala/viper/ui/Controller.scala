@@ -79,6 +79,19 @@ class Controller extends Initializable with ViperUI {
   }
 
   private def initRecordTable() {
+    autoSizeColumns()
+    setupFirstSubscriptionAdded()
+    setupChangeOfSubscription()
+  }
+
+  def autoSizeColumns() {
+    colTime.prefWidthProperty().bind(records.widthProperty().multiply(0.2));
+    colSeq.prefWidthProperty().bind(records.widthProperty().multiply(0.05));
+    colLevel.prefWidthProperty().bind(records.widthProperty().multiply(0.1));
+    colMessage.prefWidthProperty().bind(records.widthProperty().multiply(0.6));
+  }
+
+  def setupFirstSubscriptionAdded() {
     subscriptions.getItems.addListener(new ListChangeListener[Subscription] {
       override def onChanged(change: Change[_ <: Subscription]): Unit = {
         subscriptions.getSelectionModel.selectFirst()
@@ -86,6 +99,9 @@ class Controller extends Initializable with ViperUI {
         subscriptions.getItems.removeListener(this)
       }
     })
+  }
+
+  def setupChangeOfSubscription() {
     subscriptions.getSelectionModel.selectedItemProperty().addListener(new ChangeListener[Subscription] {
       override def changed(value: ObservableValue[_ <: Subscription], oldVal: Subscription, newVal: Subscription) {
         changeSubscription(newVal)
