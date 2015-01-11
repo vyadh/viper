@@ -21,7 +21,7 @@ object LogRecordPrototype extends RecordPrototype {
 
   private val time = new RecordField("Time", (r: Record) => convert(r).time)
 
-  def fields: Array[RecordField] = Array(
+  val fields: Array[RecordField] = Array(
     time,
     new RecordField("Source",      (r: Record) => convert(r).source),
     new RecordField("Severity",    (r: Record) => convert(r).severity),

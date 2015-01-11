@@ -16,11 +16,20 @@
 package viper.util
 
 import java.awt.EventQueue
+import javafx.application.Platform
 
 object EQ {
 
   def later(work: => Unit) {
     EventQueue.invokeLater(new Runnable {
+      def run() {
+        work
+      }
+    })
+  }
+
+  def laterFX(work: => Unit) {
+    Platform.runLater(new Runnable {
       def run() {
         work
       }

@@ -24,7 +24,8 @@ import collection.JavaConversions.seqAsJavaList
 import collection.JavaConversions.collectionAsScalaIterable
 import viper.util.EQ
 
-class ViperFrame(val name: String) extends JFrame(name) with UI with ViperComponents with RecordFiltering {
+class ViperFrame(val name: String) extends JFrame(name)
+      with UI with ViperComponents with RecordFiltering with ViperUI {
 
   /** The currently active subscriptions, as shown in the left-side list. */
   val subscriberEventList = new BasicEventList[Subscribed]

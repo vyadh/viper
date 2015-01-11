@@ -23,20 +23,22 @@ import source.log.random.RandomLogSource
 import source.log.regular.JULSimpleLogSource
 import source.log.xml.JULXMLLogSource
 import source.{CompositeSource, Source}
-import ui.{DragAndDropHandler, ViperFrame}
+import viper.ui.{ViperFX, ViperFrame, DragAndDropHandler, ViperUI}
 import java.io.File
 
 object Viper {
 
+  val uiType = "swing";
+
   def main(args: Array[String]) {
     val success = sendToRunningInstance(args)
     if (!success) {
-      val frame = initUI()
+      val ui = initUI()
       val sources = allSources
-      loadSubscribers(sources, frame)
-      loadFiles(sources, args, frame)
-      startDragAndDrop(sources, frame)
-      startServer(sources, frame)
+      loadSubscribers(sources, ui)
+      loadFiles(sources, args, ui)
+      startDragAndDrop(sources, ui)
+      startServer(sources, ui)
     }
   }
 
@@ -48,50 +50,59 @@ object Viper {
     }
   }
 
-  def startDragAndDrop(source: Source, frame: ViperFrame) {
-    DragAndDropHandler.install(frame, path => addAutoFileSubscriber(path, source, frame))
+  def startDragAndDrop(source: Source, ui: ViperUI) {
+    ui match {
+      case frame: ViperFrame => DragAndDropHandler.install(
+        frame, path => addAutoFileSubscriber(path, source, frame))
+      case _ =>
+    }
   }
 
-  def startServer(source: Source, frame: ViperFrame) {
+  def startServer(source: Source, ui: ViperUI) {
     val server = new ViperServer
-    server.start(path => addAutoFileSubscriber(new File(path), source, frame))
+    server.start(path => addAutoFileSubscriber(new File(path), source, ui))
   }
   
-  def addAutoFileSubscriber(file: File, source: Source, frame: ViperFrame) {
+  def addAutoFileSubscriber(file: File, source: Source, frame: ViperUI) {
     addSubscriber(autoFileSubscriber(file), source, frame)
   }
 
-  def addSubscriber(subscriber: Subscriber, source: Source, frame: ViperFrame) {
-    if (!frame.hasSubscriber(subscriber)) {
+  def addSubscriber(subscriber: Subscriber, source: Source, ui: ViperUI) {
+    if (!ui.hasSubscriber(subscriber)) {
       val subscription = source.subscribe(subscriber)
-      frame.addSubscription(subscription)
+      ui.addSubscription(subscription)
     }
-    frame.toFront()
-    frame.focusOn(subscriber)
+    ui.toFront()
+    ui.focusOn(subscriber)
   }
 
-  def initUI(): ViperFrame = {
+  def initUI(): ViperUI = {
     time("UI") {
-      val frame = new ViperFrame("Viper")
-      frame.setVisible()
-      frame
+      uiType match {
+        case "swing" =>
+          val frame = new ViperFrame("Viper")
+          frame.setVisible()
+          frame
+        case "javafx" =>
+          ViperFX.launch()
+      }
     }
   }
 
-  def loadSubscribers(source: Source, frame: ViperFrame) {
+  def loadSubscribers(source: Source, ui: ViperUI) {
     val config = configFromFile("viper-subscribers.xml")
 
     for (subscriber <- config.load()) {
       val subscription = source.subscribe(subscriber)
-      frame.addSubscription(subscription)
+      ui.addSubscription(subscription)
     }
   }
 
-  def loadFiles(source: Source, files: Array[String], frame: ViperFrame) {
+  def loadFiles(source: Source, files: Array[String], ui: ViperUI) {
     for (path <- files) {
       val subscriber = autoFileSubscriber(new File(path))
       val subscription = source.subscribe(subscriber)
-      frame.addSubscription(subscription)
+      ui.addSubscription(subscription)
     }
   }
 
