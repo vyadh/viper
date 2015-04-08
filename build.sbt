@@ -2,13 +2,13 @@ import _root_.sbt.Keys._
 import _root_.sbt._
 
 lazy val defaultSettings = Seq(
-  scalaVersion := "2.11.4",
+  scalaVersion := "2.11.6",
   version := "1.1",
   organization := "viper",
   libraryDependencies ++= Seq(
     "net.java.dev.glazedlists" % "glazedlists_java15" % "1.9.0" withSources(),
     "com.kitfox.svg" % "svg-salamander" % "1.0",
-    "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test" withSources(),
+    "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test" withSources(),
     "org.codehaus.woodstox" % "woodstox-core-asl" % "4.2.0" exclude("javax.xml.stream", "stax-api") withSources()
   )
 )

@@ -7,5 +7,10 @@
     <parameters>
       <parameter value="-feature" />
     </parameters>
+    <profile name="SBT 1" modules="root,domain,domain-log,domain-message,main,source,source-log,store,store-mapdb,ui,util">
+      <option name="deprecationWarnings" value="true" />
+      <option name="uncheckedWarnings" value="true" />
+      <option name="featureWarnings" value="true" />
+    </profile>
   </component>
 </project>

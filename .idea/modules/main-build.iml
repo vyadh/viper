@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id="main-build" external.linked.project.path="$MODULE_DIR$/../../main/project" external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" sbt.imports="sbt._, Keys._, dsl._, _root_.com.typesafe.sbt.SbtProguard._, Build._, _root_.sbt.plugins.IvyPlugin, _root_.sbt.plugins.JvmPlugin, _root_.sbt.plugins.CorePlugin, _root_.sbt.plugins.JUnitXmlReportPlugin, $19cec31eeae2af07c8c2.root, $19cec31eeae2af07c8c2.main, $19cec31eeae2af07c8c2.ui, $19cec31eeae2af07c8c2.store$minusmapdb, $19cec31eeae2af07c8c2.store, $19cec31eeae2af07c8c2.source$minuslog, $19cec31eeae2af07c8c2.source, $19cec31eeae2af07c8c2.util, $19cec31eeae2af07c8c2.domain$minusmessage, $19cec31eeae2af07c8c2.domain$minuslog, $19cec31eeae2af07c8c2.domain" sbt.resolvers="https://repo1.maven.org/maven2/|maven|public, /Users/kieron/.ivy2/cache|ivy|Local cache" type="SBT_MODULE" version="4">
+<module external.linked.project.id="main-build" external.linked.project.path="$MODULE_DIR$/../../main/project" external.root.project.path="$MODULE_DIR$/../.." external.system.id="SBT" sbt.imports="sbt._, Keys._, dsl._, _root_.com.typesafe.sbt.SbtProguard._, Build._, _root_.sbt.plugins.IvyPlugin, _root_.sbt.plugins.JvmPlugin, _root_.sbt.plugins.CorePlugin, _root_.sbt.plugins.JUnitXmlReportPlugin, $5f69c33e6086086ac473.root, $5f69c33e6086086ac473.main, $5f69c33e6086086ac473.ui, $5f69c33e6086086ac473.store$minusmapdb, $5f69c33e6086086ac473.store, $5f69c33e6086086ac473.source$minuslog, $5f69c33e6086086ac473.source, $5f69c33e6086086ac473.util, $5f69c33e6086086ac473.domain$minusmessage, $5f69c33e6086086ac473.domain$minuslog, $5f69c33e6086086ac473.domain" sbt.resolvers="https://repo1.maven.org/maven2/|maven|public, /Users/kieron/.ivy2/cache|ivy|Local cache" type="SBT_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/../../main/project/target/idea-classes" />
     <output-test url="file://$MODULE_DIR$/../../main/project/target/idea-test-classes" />
@@ -23,7 +23,6 @@
           <root url="jar://$USER_HOME$/.sbt/boot/scala-2.10.4/org.scala-sbt/sbt/0.13.7/cache-0.13.7.jar!/" />
           <root url="jar://$USER_HOME$/.sbt/boot/scala-2.10.4/org.scala-sbt/sbt/0.13.7/xsbti/interface-0.13.7.jar!/" />
           <root url="jar://$USER_HOME$/.sbt/boot/scala-2.10.4/org.scala-sbt/sbt/0.13.7/json4s-support_2.10-0.6.0.jar!/" />
-          <root url="file://$MODULE_DIR$/../../project/target/scala-2.10/sbt-0.13/classes" />
           <root url="jar://$USER_HOME$/.sbt/boot/scala-2.10.4/org.scala-sbt/sbt/0.13.7/relation-0.13.7.jar!/" />
           <root url="jar://$USER_HOME$/.sbt/boot/scala-2.10.4/org.scala-sbt/sbt/0.13.7/compile-0.13.7.jar!/" />
           <root url="jar://$USER_HOME$/.sbt/boot/scala-2.10.4/org.scala-sbt/sbt/0.13.7/command-0.13.7.jar!/" />
@@ -60,7 +59,6 @@
           <root url="jar://$USER_HOME$/.sbt/boot/scala-2.10.4/org.scala-sbt/sbt/0.13.7/jsch-0.1.46.jar!/" />
           <root url="jar://$USER_HOME$/.sbt/boot/scala-2.10.4/lib/jansi.jar!/" />
           <root url="jar://$USER_HOME$/.sbt/boot/scala-2.10.4/org.scala-sbt/sbt/0.13.7/json4s-native_2.10-3.2.10.jar!/" />
-          <root url="file://$MODULE_DIR$/../../project/target/config-classes" />
           <root url="jar://$USER_HOME$/.sbt/boot/scala-2.10.4/org.scala-sbt/sbt/0.13.7/classpath-0.13.7.jar!/" />
           <root url="jar://$USER_HOME$/.sbt/boot/scala-2.10.4/org.scala-sbt/sbt/0.13.7/sbt-0.13.7.jar!/" />
           <root url="jar://$USER_HOME$/.sbt/boot/scala-2.10.4/org.scala-sbt/sbt/0.13.7/collections-0.13.7.jar!/" />
