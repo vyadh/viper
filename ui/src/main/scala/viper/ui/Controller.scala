@@ -43,6 +43,7 @@ class Controller extends Initializable with ViperUI {
   @FXML protected var colSeq: TableColumn[Record, String] = _
   @FXML protected var colLevel: TableColumn[Record, String] = _
   @FXML protected var colMessage: TableColumn[Record, String] = _
+  @FXML protected var preview: TextArea = _
 
   override def initialize(url: URL, resourceBundle: ResourceBundle): Unit = {
     checkFieldsInitialised()
@@ -60,6 +61,8 @@ class Controller extends Initializable with ViperUI {
 
   private def initSubscriptionsList() {
     subscriptions.setCellFactory(new SubscriptionsListCallback)
+    setupFirstSubscriptionAdded()
+    setupChangeOfSubscription()
   }
 
   class SubscriptionsListCallback extends Callback[ListView[Subscription], ListCell[Subscription]] {
@@ -76,19 +79,6 @@ class Controller extends Initializable with ViperUI {
         setText(item.name);
       }
     }
-  }
-
-  private def initRecordTable() {
-    autoSizeColumns()
-    setupFirstSubscriptionAdded()
-    setupChangeOfSubscription()
-  }
-
-  def autoSizeColumns() {
-    colTime.prefWidthProperty().bind(records.widthProperty().multiply(0.2));
-    colSeq.prefWidthProperty().bind(records.widthProperty().multiply(0.05));
-    colLevel.prefWidthProperty().bind(records.widthProperty().multiply(0.1));
-    colMessage.prefWidthProperty().bind(records.widthProperty().multiply(0.6));
   }
 
   def setupFirstSubscriptionAdded() {
@@ -117,6 +107,28 @@ class Controller extends Initializable with ViperUI {
     colSeq.setCellValueFactory(recordCellFactory(conversion(1)))
     colLevel.setCellValueFactory(recordCellFactory(conversion(2)))
     colMessage.setCellValueFactory(recordCellFactory(conversion(3)))
+  }
+
+  private def initRecordTable() {
+    autoSizeColumns()
+    previewSelection()
+  }
+
+  def autoSizeColumns() {
+    colTime.prefWidthProperty().bind(records.widthProperty().multiply(0.2));
+    colSeq.prefWidthProperty().bind(records.widthProperty().multiply(0.05));
+    colLevel.prefWidthProperty().bind(records.widthProperty().multiply(0.1));
+    colMessage.prefWidthProperty().bind(records.widthProperty().multiply(0.6));
+  }
+
+  def previewSelection(): Unit = {
+    preview.setWrapText(true)
+
+    records.getSelectionModel.selectedItemProperty().addListener(new ChangeListener[Record] {
+      override def changed(value: ObservableValue[_ <: Record], oldVal: Record, newVal: Record) = {
+        preview.setText(newVal.body)
+      }
+    })
   }
 
   def recordCellFactory(f: Record => String): Callback[CellDataFeatures[Record, String], ObservableValue[String]] = {
